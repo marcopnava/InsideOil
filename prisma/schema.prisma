@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users & Auth ───────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  passwordHash  String?
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(VIEWER)
+  stripeCustomerId String? @unique
+  subscriptionTier String  @default("free") // free, junior, trader, professional
+  subscriptionEnd  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+  alerts   Alert[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// ─── Ports ──────────────────────────────────────────────────
+
+model Port {
+  id        String  @id @default(cuid())
+  name      String
+  code      String  @unique
+  country   String
+  lat       Float
+  lng       Float
+  timezone  String?
+  isActive  Boolean @default(true)
+
+  originRoutes ShippingRoute[] @relation("OriginPort")
+  destRoutes   ShippingRoute[] @relation("DestPort")
+  originVoyages Vessel[]       @relation("VesselOrigin")
+  destVoyages   Vessel[]       @relation("VesselDest")
+
+  @@map("ports")
+}
+
+// ─── Shipping Routes ────────────────────────────────────────
+
+model ShippingRoute {
+  id           String  @id @default(cuid())
+  name         String
+  originPortId String
+  destPortId   String
+  waypoints    Json
+  distanceNm   Int?
+  avgTransitDays Int?
+
+  originPort Port @relation("OriginPort", fields: [originPortId], references: [id])
+  destPort   Port @relation("DestPort", fields: [destPortId], references: [id])
+  vessels    Vessel[]
+
+  @@map("shipping_routes")
+}
+
+// ─── Vessels ────────────────────────────────────────────────
+
+model Vessel {
+  id           String       @id @default(cuid())
+  name         String
+  imo          String       @unique
+  mmsi         String?
+  flag         String
+  vesselType   VesselType   @default(CONTAINER)
+  capacityTeu  Int?
+  cargo        String?
+  status       VesselStatus @default(IN_TRANSIT)
+  speed        Float?
+  heading      Float?
+  lat          Float?
+  lng          Float?
+  progress     Float?
+  departureAt  DateTime?
+  etaAt        DateTime?
+  isDelayed    Boolean      @default(false)
+  delayReason  String?
+
+  routeId      String?
+  originPortId String?
+  destPortId   String?
+
+  route      ShippingRoute? @relation(fields: [routeId], references: [id])
+  originPort Port?          @relation("VesselOrigin", fields: [originPortId], references: [id])
+  destPort   Port?          @relation("VesselDest", fields: [destPortId], references: [id])
+  snapshots  VesselSnapshot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("vessels")
+}
+
+model VesselSnapshot {
+  id        String   @id @default(cuid())
+  vesselId  String
+  lat       Float
+  lng       Float
+  speed     Float?
+  heading   Float?
+  timestamp DateTime @default(now())
+
+  vessel Vessel @relation(fields: [vesselId], references: [id], onDelete: Cascade)
+
+  @@index([vesselId, timestamp])
+  @@map("vessel_snapshots")
+}
+
+// ─── Aircraft (cached from OpenSky) ────────────────────────
+
+model AircraftSnapshot {
+  id          String   @id @default(cuid())
+  icao24      String
+  callsign    String?
+  country     String?
+  lat         Float
+  lng         Float
+  altitude    Float?
+  speed       Float?
+  heading     Float?
+  verticalRate Float?
+  onGround    Boolean  @default(false)
+  isCargo     Boolean  @default(false)
+  fetchedAt   DateTime @default(now())
+
+  @@index([fetchedAt])
+  @@index([icao24])
+  @@map("aircraft_snapshots")
+}
+
+// ─── Alerts ─────────────────────────────────────────────────
+
+model Alert {
+  id          String      @id @default(cuid())
+  type        AlertType
+  severity    Severity
+  title       String
+  description String
+  isRead      Boolean     @default(false)
+  isResolved  Boolean     @default(false)
+  entityType  String?
+  entityId    String?
+  userId      String?
+  createdAt   DateTime    @default(now())
+  resolvedAt  DateTime?
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@map("alerts")
+}
+
+// ─── System / Fetch log ─────────────────────────────────────
+
+model FetchLog {
+  id           String   @id @default(cuid())
+  source       String
+  aircraftCount Int?
+  vesselCount  Int?
+  durationMs   Int?
+  error        String?
+  fetchedAt    DateTime @default(now())
+
+  @@index([fetchedAt])
+  @@map("fetch_logs")
+}
+
+// ─── Trade Proposals (Portfolio) ─────────────────────────────
+
+model TradeProposal {
+  id          String   @id @default(cuid())
+  timestamp   DateTime @default(now())
+  action      String   // BUY, SELL, WAIT
+  direction   String   // LONG, SHORT, FLAT
+  conviction  String   // HIGH, MODERATE, LOW
+  instrument  String
+  entry       Float
+  target      Float
+  stopLoss    Float
+  riskReward  String
+  timeframe   String
+  positionSize String
+  rationale   String
+  score       Float
+  context     Json     // { wti, brent, crack, storageRatio, tankers }
+  status      String   @default("OPEN") // OPEN, TARGET_HIT, STOPPED, EXPIRED, SUPERSEDED
+  currentPrice Float?
+  pnlPct      Float?
+  closedAt    DateTime?
+  validUntil  DateTime
+
+  @@index([timestamp])
+  @@index([status])
+  @@map("trade_proposals")
+}
+
+// ─── Enums ──────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+enum VesselType {
+  CONTAINER
+  BULK_CARRIER
+  TANKER
+  RORO
+  GENERAL_CARGO
+}
+
+enum VesselStatus {
+  IN_TRANSIT
+  AT_PORT
+  DELAYED
+  ARRIVING
+  DEPARTED
+}
+
+enum AlertType {
+  DELAY
+  CONGESTION
+  WEATHER
+  RATE_SPIKE
+  CAPACITY
+  SYSTEM
+}
+
+enum Severity {
+  CRITICAL
+  WARNING
+  INFO
+}
