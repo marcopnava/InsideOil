@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import crypto from "crypto";
+import { stripe, PLANS } from "@/lib/stripe";
 import { db } from "@/lib/db";
+import { sendWelcomeEmail, sendReceiptEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +12,12 @@ function planFromMetadata(metadata: Record<string, string> | null): string {
   if (plan.startsWith("trader")) return "trader";
   if (plan.startsWith("junior")) return "junior";
   return "free";
+}
+
+function planDisplayName(metadata: Record<string, string> | null): string {
+  const plan = metadata?.plan ?? "";
+  const config = PLANS[plan];
+  return config?.name ?? "InsideOil";
 }
 
 function roleFromTier(tier: string): "ADMIN" | "OPERATOR" | "VIEWER" {
@@ -37,10 +45,19 @@ export async function POST(req: NextRequest) {
         const session = event.data.object;
         const customerEmail = session.customer_details?.email?.toLowerCase().trim();
         const tier = planFromMetadata(session.metadata);
+        const displayName = planDisplayName(session.metadata);
         const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
+        const amountTotal = session.amount_total ? (session.amount_total / 100).toFixed(2) : "0";
+        const currency = (session.currency ?? "eur") === "eur" ? "\u20ac" : "$";
 
-        if (customerEmail) {
-          await db.user.updateMany({
+        if (!customerEmail) break;
+
+        // Check if user already exists (returning customer)
+        const existingUser = await db.user.findUnique({ where: { email: customerEmail } });
+
+        if (existingUser && existingUser.passwordHash) {
+          // Existing registered user — just upgrade tier
+          await db.user.update({
             where: { email: customerEmail },
             data: {
               subscriptionTier: tier,
@@ -48,8 +65,46 @@ export async function POST(req: NextRequest) {
               role: roleFromTier(tier),
             },
           });
-          console.log(`[Stripe] Activated ${tier} for ${customerEmail}`);
+          console.log(`[Stripe] Upgraded ${customerEmail} to ${tier}`);
+        } else {
+          // New user — create account with registration token
+          const token = crypto.randomBytes(32).toString("hex");
+          const tokenExpires = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours
+
+          await db.user.upsert({
+            where: { email: customerEmail },
+            update: {
+              subscriptionTier: tier,
+              stripeCustomerId: customerId ?? undefined,
+              role: roleFromTier(tier),
+              registrationToken: token,
+              tokenExpiresAt: tokenExpires,
+            },
+            create: {
+              email: customerEmail,
+              subscriptionTier: tier,
+              stripeCustomerId: customerId ?? undefined,
+              role: roleFromTier(tier),
+              registrationToken: token,
+              tokenExpiresAt: tokenExpires,
+            },
+          });
+
+          // Send welcome email with registration link
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://insideoil.it";
+          const registrationLink = `${baseUrl}/register?token=${token}`;
+          await sendWelcomeEmail(customerEmail, registrationLink, displayName).catch((e) =>
+            console.error("[Email] Welcome email failed:", e)
+          );
+
+          console.log(`[Stripe] Created account for ${customerEmail}, tier: ${tier}`);
         }
+
+        // Send receipt email
+        await sendReceiptEmail(customerEmail, displayName, amountTotal, currency).catch((e) =>
+          console.error("[Email] Receipt email failed:", e)
+        );
+
         break;
       }
 
@@ -65,9 +120,7 @@ export async function POST(req: NextRequest) {
 
           await db.user.updateMany({
             where: { stripeCustomerId: customerId },
-            data: {
-              subscriptionEnd: endDate,
-            },
+            data: { subscriptionEnd: endDate },
           });
           console.log(`[Stripe] Subscription updated: ${customerId}, ends ${endDate?.toISOString()}`);
         }
@@ -95,7 +148,6 @@ export async function POST(req: NextRequest) {
       case "invoice.payment_failed": {
         const invoice = event.data.object;
         console.log(`[Stripe] Payment failed for: ${invoice.customer_email ?? "unknown"}`);
-        // Grace period: subscription stays active until Stripe auto-cancels
         break;
       }
 

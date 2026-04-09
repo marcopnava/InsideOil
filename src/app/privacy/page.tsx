@@ -14,7 +14,7 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-[14px] text-text2 leading-relaxed">
           <section>
             <h2 className="text-[18px] font-semibold text-text mb-3">1. Data Controller</h2>
-            <p>InsideOil (&quot;we&quot;, &quot;us&quot;) operates insideoil.it. For questions about this policy, contact us at <strong>privacy@insideoil.it</strong>.</p>
+            <p>InsideOil (&quot;we&quot;, &quot;us&quot;) operates insideoil.it. For questions about this policy, contact us at <strong>info@insideoil.it</strong>.</p>
           </section>
 
           <section>
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-[18px] font-semibold text-text mb-3">7. Your Rights (GDPR)</h2>
-            <p>You have the right to: access, rectify, delete, port your data, object to processing, and withdraw consent. Contact <strong>privacy@insideoil.it</strong> to exercise these rights.</p>
+            <p>You have the right to: access, rectify, delete, port your data, object to processing, and withdraw consent. Contact <strong>info@insideoil.it</strong> to exercise these rights.</p>
           </section>
 
           <section>

@@ -17,11 +17,13 @@ model User {
   emailVerified DateTime?
   image         String?
   role          Role      @default(VIEWER)
-  stripeCustomerId String? @unique
-  subscriptionTier String  @default("free") // free, junior, trader, professional
-  subscriptionEnd  DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  stripeCustomerId   String?   @unique
+  subscriptionTier   String    @default("free") // free, junior, trader, professional
+  subscriptionEnd    DateTime?
+  registrationToken  String?   @unique
+  tokenExpiresAt     DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   accounts Account[]
   sessions Session[]

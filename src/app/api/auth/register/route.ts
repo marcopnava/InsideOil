@@ -11,6 +11,7 @@ const registerSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[0-9]/, "Password must contain at least one number"),
+  token: z.string().min(1, "Registration token is required"),
 });
 
 export async function POST(req: NextRequest) {
@@ -23,32 +24,45 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: firstError }, { status: 400 });
     }
 
-    const { name, email, password } = parsed.data;
+    const { name, email, password, token } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if user already exists
-    const existing = await db.user.findUnique({ where: { email: normalizedEmail } });
-    if (existing) {
-      return NextResponse.json({ success: false, error: "An account with this email already exists" }, { status: 409 });
+    // Validate token
+    const user = await db.user.findUnique({ where: { registrationToken: token } });
+
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Invalid registration token" }, { status: 400 });
     }
 
-    // Hash password and create user
+    if (user.email !== normalizedEmail) {
+      return NextResponse.json({ success: false, error: "Email does not match the registration token" }, { status: 400 });
+    }
+
+    if (user.passwordHash) {
+      return NextResponse.json({ success: false, error: "Account already registered. Please sign in." }, { status: 400 });
+    }
+
+    if (user.tokenExpiresAt && user.tokenExpiresAt < new Date()) {
+      return NextResponse.json({ success: false, error: "Registration link has expired. Contact info@insideoil.it" }, { status: 400 });
+    }
+
+    // Set password and clear token
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const user = await db.user.create({
+    await db.user.update({
+      where: { id: user.id },
       data: {
         name,
-        email: normalizedEmail,
         passwordHash,
-        role: "VIEWER",
-        subscriptionTier: "free",
+        registrationToken: null,
+        tokenExpiresAt: null,
       },
     });
 
     return NextResponse.json({
       success: true,
-      data: { id: user.id, email: user.email, name: user.name },
-    }, { status: 201 });
+      data: { id: user.id, email: user.email, name },
+    }, { status: 200 });
   } catch {
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
