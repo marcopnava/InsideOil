@@ -28,6 +28,7 @@ model User {
   accounts Account[]
   sessions Session[]
   alerts   Alert[]
+  contents Content[]
 
   @@map("users")
 }
@@ -239,6 +240,41 @@ model TradeProposal {
   @@index([timestamp])
   @@index([status])
   @@map("trade_proposals")
+}
+
+// ─── Social Content ─────────────────────────────────────────
+
+model Content {
+  id          String        @id @default(cuid())
+  title       String
+  caption     String
+  hashtags    String[]
+  mediaUrl    String        // Vercel Blob URL
+  mediaType   String        // video, image
+  platform    String[]      // tiktok, instagram
+  status      ContentStatus @default(DRAFT)
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  tiktokId    String?       // ID returned by TikTok after publishing
+  instagramId String?       // ID returned by Instagram after publishing
+  error       String?
+  createdBy   String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  author User @relation(fields: [createdBy], references: [id])
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("contents")
+}
+
+enum ContentStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
 }
 
 // ─── Enums ──────────────────────────────────────────────────
