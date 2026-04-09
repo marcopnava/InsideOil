@@ -184,9 +184,9 @@ export default function LandingPage() {
           </motion.svg>
           <span className="text-[18px] font-bold tracking-[-0.03em]">InsideOil</span>
         </div>
-        <div className="hidden sm:flex items-center gap-6">
-          <a href="#features" className="text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Features</a>
-          <a href="#pricing" className="text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Pricing</a>
+        <div className="flex items-center gap-4 sm:gap-6">
+          <a href="#features" className="hidden sm:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Features</a>
+          <a href="#pricing" className="hidden sm:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Pricing</a>
           <Link href="/login" className="px-4 py-[7px] rounded-[7px] bg-text text-white text-[12px] font-semibold no-underline hover:bg-black/80 transition-colors">
             Sign in
           </Link>
@@ -303,11 +303,11 @@ export default function LandingPage() {
         <FadeIn>
           <div className="max-w-[800px] mx-auto text-center">
             <p className="text-[11px] font-semibold text-text3 uppercase tracking-[0.1em] mb-6">Trusted by traders at</p>
-            <div className="flex items-center justify-center gap-12 sm:gap-16">
-              <div className="text-[24px] sm:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Trafigura</div>
-              <div className="text-[24px] sm:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Vitol</div>
-              <div className="text-[24px] sm:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Gunvor</div>
-              <div className="text-[24px] sm:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Glencore</div>
+            <div className="flex items-center justify-center gap-6 sm:gap-12 md:gap-16 flex-wrap">
+              <div className="text-[18px] sm:text-[24px] md:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Trafigura</div>
+              <div className="text-[18px] sm:text-[24px] md:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Vitol</div>
+              <div className="text-[18px] sm:text-[24px] md:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Gunvor</div>
+              <div className="text-[18px] sm:text-[24px] md:text-[28px] font-bold tracking-[-0.03em] text-text3/40">Glencore</div>
             </div>
           </div>
         </FadeIn>
@@ -395,8 +395,8 @@ export default function LandingPage() {
                     <path d="M12 2L8 8V16L4 20H20L16 16V8L12 2Z" />
                   </svg>
                 </motion.div>
-                <p className="text-[22px] font-bold tracking-[-0.03em]">Built for the people who<br />move the world&apos;s oil</p>
-                <p className="text-[13px] text-text3 mt-3 max-w-[400px] mx-auto leading-[1.5]">
+                <p className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] text-center">Built for the people who move the world&apos;s oil</p>
+                <p className="text-[13px] text-text3 mt-3 max-w-[400px] mx-auto leading-[1.5] text-center">
                   Physical traders, chartering desks, risk analysts — anyone whose decisions depend on knowing where crude is right now.
                 </p>
               </div>
