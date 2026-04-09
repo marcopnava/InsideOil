@@ -95,7 +95,7 @@ export default function LoginPage() {
 
         <p className="text-center text-[11px] text-white/40 mt-5">
           Don&apos;t have an account?{" "}
-          <a href="/register" className="text-accent font-semibold no-underline hover:underline">Create one</a>
+          <a href="/#pricing" className="text-accent font-semibold no-underline hover:underline">View plans</a>
         </p>
       </div>
     </div>
