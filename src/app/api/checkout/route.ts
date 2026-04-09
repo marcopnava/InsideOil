@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${req.nextUrl.origin}/dashboard?welcome=true&plan=${plan}`,
+      success_url: `${req.nextUrl.origin}/welcome?plan=${plan}`,
       cancel_url: `${req.nextUrl.origin}/#pricing`,
       allow_promotion_codes: true,
       metadata: { plan },
