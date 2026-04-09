@@ -37,21 +37,38 @@ const adminPaths = ["/admin"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // ─── NEVER touch NextAuth routes ───
+  if (pathname.startsWith("/api/auth/")) {
+    return NextResponse.next();
+  }
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
 
-  // ─── Rate limiting for API routes ───
+  // ─── Rate limiting for other API routes ───
   if (pathname.startsWith("/api/")) {
-    const isAuthRoute = pathname.startsWith("/api/auth/register") || pathname.startsWith("/api/auth/callback");
-    const limit = isAuthRoute ? RATE_LIMIT_AUTH : RATE_LIMIT_API;
-
-    if (isRateLimited(`${ip}:${isAuthRoute ? "auth" : "api"}`, limit)) {
+    if (isRateLimited(`${ip}:api`, RATE_LIMIT_API)) {
       return NextResponse.json(
         { success: false, error: "Too many requests. Please try again later." },
         { status: 429, headers: { "Retry-After": "60" } }
       );
     }
+
+    // Admin API routes
+    if (pathname.startsWith("/api/admin/")) {
+      const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+      if (token?.role !== "ADMIN") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
+
+    // Add security headers and pass through
+    const response = NextResponse.next();
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    return response;
   }
 
+  // ─── Page routes ───
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   // Protected routes — require login
@@ -71,12 +88,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Admin API routes
-  if (pathname.startsWith("/api/admin/") && token?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  // Add security headers to all responses
+  // Add security headers
   const response = NextResponse.next();
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -88,7 +100,6 @@ export async function middleware(req: NextRequest) {
   return response;
 }
 
-// ONLY run middleware on page routes, API, and admin — NOT on static files
 export const config = {
   matcher: [
     "/dashboard", "/dashboard/:path*",
