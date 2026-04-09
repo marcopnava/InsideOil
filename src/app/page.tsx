@@ -131,8 +131,10 @@ function PricingSection() {
                   whileHover={p.highlight ? { scale: 1.02 } : {}}
                   className={`bg-white p-7 h-full flex flex-col ${p.highlight ? "bg-bg" : ""}`}
                 >
-                  {p.highlight && <div className="text-[9px] font-bold text-accent uppercase tracking-[0.1em] mb-3">Most popular</div>}
-                  <h3 className="text-[20px] font-bold">{p.name}</h3>
+                  <div className="h-[18px] flex items-end">
+                    {p.highlight && <div className="text-[9px] font-bold text-accent uppercase tracking-[0.1em]">Most popular</div>}
+                  </div>
+                  <h3 className="text-[20px] font-bold mt-2">{p.name}</h3>
                   <div className="mt-3 mb-1">
                     <span className="text-[40px] font-bold tracking-[-0.04em] leading-none">{p.currency}{plan.price}</span>
                     <span className="text-[14px] text-text3 ml-0.5">{period}</span>
