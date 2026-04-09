@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   // If Stripe is not configured, redirect to login
   if (!stripe) {
-    return NextResponse.redirect(new URL(`/login?plan=${plan}&stripe=pending`, req.url));
+    return NextResponse.redirect(new URL(`/#pricing`, req.url));
   }
 
   try {
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       const price = await stripe.prices.create({
         product: product.id,
         unit_amount: planConfig.price,
-        currency: "usd",
+        currency: planConfig.currency || "eur",
         recurring: { interval: planConfig.interval },
         lookup_key: `insideoil_${plan}_monthly`,
       });
@@ -63,6 +63,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/#pricing", req.url));
   } catch (e) {
     console.error("[Stripe] Checkout error:", e);
-    return NextResponse.redirect(new URL(`/login?plan=${plan}&error=checkout`, req.url));
+    return NextResponse.redirect(new URL(`/#pricing`, req.url));
   }
 }
