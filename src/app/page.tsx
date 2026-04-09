@@ -151,7 +151,7 @@ function PricingSection() {
                     ))}
                   </ul>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Link href={`/api/checkout?plan=${plan.id}`} className={`block text-center py-3 rounded-[7px] text-[13px] font-semibold no-underline transition-all ${p.highlight ? "bg-text text-white hover:shadow-[0_4px_20px_rgba(0,0,0,.12)]" : "bg-bg text-text hover:bg-bg2 border border-border"}`}>
+                    <Link href={`/register?plan=${plan.id}`} className={`block text-center py-3 rounded-[7px] text-[13px] font-semibold no-underline transition-all ${p.highlight ? "bg-text text-white hover:shadow-[0_4px_20px_rgba(0,0,0,.12)]" : "bg-bg text-text hover:bg-bg2 border border-border"}`}>
                       {p.cta}
                     </Link>
                   </motion.div>
