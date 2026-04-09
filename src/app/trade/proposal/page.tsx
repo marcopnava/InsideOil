@@ -90,7 +90,7 @@ export default function ProposalPage() {
 
   return (
     <AppShell>
-    <div className="animate-fade-in max-w-[1400px] mx-auto p-7 px-8 pb-14">
+    <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
       <div className="mb-7">
         <h1 className="text-[30px] font-bold tracking-[-0.035em]">Trade Proposal</h1>
         <p className="text-sm text-text3 mt-1">Auto-generated trade with entry/target/stop — updates every 2 minutes</p>

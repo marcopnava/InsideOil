@@ -74,7 +74,7 @@ export default function TradingDesk() {
 
   return (
     <AppShell>
-    <div className="animate-fade-in max-w-[1400px] mx-auto p-7 px-8 pb-14">
+    <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
       <div className="mb-7">
         <h1 className="text-[30px] font-bold tracking-[-0.035em]">Trading Desk</h1>
         <p className="text-sm text-text3 mt-1">Voyage economics, crack spreads, arbitrage scanner, dark fleet — operational intelligence</p>

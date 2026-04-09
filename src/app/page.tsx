@@ -96,7 +96,7 @@ function PricingSection() {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <section id="pricing" className="py-24 px-8 border-t border-border bg-white">
+    <section id="pricing" className="py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-white">
       <div className="max-w-[1000px] mx-auto">
         <FadeIn>
           <div className="text-center mb-10">
@@ -173,7 +173,7 @@ export default function LandingPage() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-[24px] border-b border-border z-[1000] flex items-center justify-between px-8"
+        className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-[24px] border-b border-border z-[1000] flex items-center justify-between px-4 sm:px-6 md:px-8"
       >
         <div className="flex items-center gap-2.5">
           <motion.svg viewBox="0 0 26 26" fill="none" className="w-[24px] h-[24px]" whileHover={{ rotate: 90 }} transition={{ duration: 0.3 }}>
@@ -194,7 +194,7 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* Hero */}
-      <section className="relative pt-[160px] pb-24 px-8 overflow-hidden">
+      <section className="relative pt-[160px] pb-24 px-4 sm:px-6 md:px-8 overflow-hidden">
         {/* Video background */}
         <div className="absolute inset-0 z-0">
           <video
@@ -299,7 +299,7 @@ export default function LandingPage() {
       </div>
 
       {/* Trusted by */}
-      <section className="py-12 px-8 bg-white border-b border-border">
+      <section className="py-12 px-4 sm:px-6 md:px-8 bg-white border-b border-border">
         <FadeIn>
           <div className="max-w-[800px] mx-auto text-center">
             <p className="text-[11px] font-semibold text-text3 uppercase tracking-[0.1em] mb-6">Trusted by traders at</p>
@@ -314,7 +314,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-24 px-8">
+      <section id="features" className="py-24 px-4 sm:px-6 md:px-8">
         <div className="max-w-[1100px] mx-auto">
           <FadeIn>
             <div className="max-w-[500px] mb-14">
@@ -340,7 +340,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="relative py-24 px-8 border-y border-border overflow-hidden">
+      <section className="relative py-24 px-4 sm:px-6 md:px-8 border-y border-border overflow-hidden">
         {/* Video background */}
         <div className="absolute inset-0 z-0">
           <video autoPlay muted loop playsInline className="w-full h-full object-cover" style={{ filter: "brightness(0.12)" }}>
@@ -378,7 +378,7 @@ export default function LandingPage() {
       </section>
 
       {/* Divider — visual break between video sections */}
-      <section className="py-20 px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 md:px-8 bg-white">
         <div className="max-w-[800px] mx-auto">
           <FadeIn>
             <div className="flex items-center gap-8">
@@ -407,7 +407,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="relative py-24 px-8 overflow-hidden">
+      <section className="relative py-24 px-4 sm:px-6 md:px-8 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <video autoPlay muted loop playsInline className="w-full h-full object-cover" style={{ filter: "brightness(0.15)" }}>
             <source src="/fleet.mp4" type="video/mp4" />
@@ -441,7 +441,7 @@ export default function LandingPage() {
       <PricingSection />
 
       {/* Final CTA */}
-      <section className="relative py-28 px-8 overflow-hidden">
+      <section className="relative py-28 px-4 sm:px-6 md:px-8 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <video autoPlay muted loop playsInline className="w-full h-full object-cover" style={{ filter: "brightness(0.2)" }}>
             <source src="/fog.mp4" type="video/mp4" />
@@ -453,7 +453,7 @@ export default function LandingPage() {
             <h2 className="text-[36px] font-bold tracking-[-0.035em] leading-[1.1] text-white">Start making informed<br />crude oil decisions</h2>
             <p className="text-[15px] text-white/60 mt-4 mb-8">Free to start. No credit card required. Real data from day one.</p>
             <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-              <Link href="/login" className="inline-block px-8 py-3.5 rounded-[7px] bg-white text-text text-[14px] font-semibold no-underline hover:shadow-[0_6px_30px_rgba(255,255,255,.2)] transition-shadow">
+              <Link href="/login" className="inline-block px-4 sm:px-6 md:px-8 py-3.5 rounded-[7px] bg-white text-text text-[14px] font-semibold no-underline hover:shadow-[0_6px_30px_rgba(255,255,255,.2)] transition-shadow">
                 Create free account
               </Link>
             </motion.div>
@@ -462,7 +462,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-8 border-t border-border">
+      <footer className="py-8 px-4 sm:px-6 md:px-8 border-t border-border">
         <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <svg viewBox="0 0 26 26" fill="none" className="w-[16px] h-[16px]">
