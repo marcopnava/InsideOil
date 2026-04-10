@@ -1,15 +1,19 @@
 import { NextRequest } from "next/server";
 
 /**
- * Validates incoming Vercel cron requests.
- * Vercel sends header: `Authorization: Bearer ${CRON_SECRET}` automatically
- * when CRON_SECRET is set in project env vars.
+ * Validates incoming cron requests. Accepts EITHER:
+ *   1. `Authorization: Bearer ${CRON_SECRET}` header — used by Vercel cron
+ *   2. `?secret=${CRON_SECRET}` query param — used by external pingers like
+ *      UptimeRobot free tier (no custom headers).
  *
- * In dev (no CRON_SECRET set) → allow all so we can call manually.
+ * In dev (no CRON_SECRET set) → allow all.
  */
 export function isCronAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return true;
   const auth = req.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
+  if (auth === `Bearer ${secret}`) return true;
+  const qs = req.nextUrl.searchParams.get("secret");
+  if (qs && qs === secret) return true;
+  return false;
 }
