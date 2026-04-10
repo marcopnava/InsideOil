@@ -543,6 +543,700 @@ const SECTIONS: Array<{ id: string; title: string; content: React.ReactNode }> =
       </>
     ),
   },
+  {
+    id: "eia-playbook",
+    title: "14. The Wednesday EIA playbook (minute-by-minute)",
+    content: (
+      <>
+        <p>
+          Every Wednesday at 16:30 CET (10:30 ET), the U.S. Energy Information Administration
+          releases the <strong>Weekly Petroleum Status Report</strong>. This single release
+          moves the crude oil price 1-2% within the first 10 minutes, more on big surprises.
+          It&apos;s the most consistently market-moving event for retail crude traders. Here&apos;s how
+          to trade it properly.
+        </p>
+
+        <h3>Before the release (16:00-16:29 CET)</h3>
+        <ul>
+          <li>Open <strong>/differentials</strong>. The EIA card shows last week&apos;s numbers.</li>
+          <li>Check the market consensus for this week (it&apos;s published on Reuters, Bloomberg,
+            financial news sites — tipically: crude stock change expected, gasoline, distillate).
+            You need the CONSENSUS before the release — without it you cannot interpret the surprise.</li>
+          <li>Check the <strong>API report</strong> from Tuesday evening. API is the private
+            industry body that publishes crude stocks ~20h before EIA. Its numbers are a sneak
+            peek — if API showed a big build, EIA usually confirms (but not always).</li>
+          <li>Know your position size in advance. EIA releases can gap 5-15 ticks on CL in
+            the first second. If you&apos;re using stops, widen them or stand aside.</li>
+        </ul>
+
+        <h3>The release moment (16:30 CET)</h3>
+        <ul>
+          <li>Refresh /differentials and look at 4 numbers, in this order:</li>
+          <li>
+            <strong>1. Crude stocks change</strong> (headline). Compare to consensus.
+            Build &gt; consensus + 2M = bearish surprise → crude drops.
+            Draw &gt; consensus − 2M = bullish surprise → crude rises.
+            If within ±1M of consensus, no surprise — ignore the headline, look at details.
+          </li>
+          <li>
+            <strong>2. Gasoline stocks</strong>. In summer driving season (May-Sep) this matters
+            as much as crude. Gasoline draw = bullish for crude (implied demand).
+            Gasoline build = bearish.
+          </li>
+          <li>
+            <strong>3. Distillate stocks</strong>. In winter (Dec-Feb) this is the key for
+            heating demand. Distillate draw = bullish, build = bearish.
+          </li>
+          <li>
+            <strong>4. Refinery utilization %</strong>. Above 92% = refineries running hard,
+            strong crude demand. Falling rapidly week-over-week = refineries cutting runs,
+            bearish for crude.
+          </li>
+        </ul>
+
+        <h3>Decision tree (first 10 minutes)</h3>
+        <p>Use this simple matrix:</p>
+        <ul>
+          <li>
+            <strong>Headline bullish + product draws + util &gt;92%</strong> = strong bull.
+            Setup: long CL/BZ, target 1-2% in 30 min, stop 0.5%.
+          </li>
+          <li>
+            <strong>Headline bullish but product builds</strong> = mixed. Wait for market
+            reaction, don&apos;t fade.
+          </li>
+          <li>
+            <strong>Headline bearish + product builds + util dropping</strong> = strong bear.
+            Setup: short CL/BZ, target 1-2% in 30 min, stop 0.5%.
+          </li>
+          <li>
+            <strong>All figures in-line with consensus</strong> = non-event. Market may fade
+            the pre-release positioning. Flat or mean-revert trade.
+          </li>
+        </ul>
+
+        <h3>Common trap: the 10-minute reversal</h3>
+        <p>
+          The market often overreacts in the first 2 minutes, then partially reverses as
+          algos re-price with more detail (imports, exports, PADD regional breakdown). A
+          disciplined play is to wait 3-5 minutes for the initial spike, then enter the
+          opposite direction ONLY if the reversal is confirmed by volume and the detail
+          data contradicts the headline.
+        </p>
+
+        <h3>What NOT to do</h3>
+        <ul>
+          <li>Don&apos;t hold a big leveraged position through 16:30 without a plan.</li>
+          <li>Don&apos;t chase the first 30-second move — that&apos;s the algo move, retail always gets filled at bad prices.</li>
+          <li>Don&apos;t ignore refinery utilization — it&apos;s the most underused signal.</li>
+          <li>Don&apos;t trade if there&apos;s conflicting news (OPEC, Middle East, etc.) that same day.</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: "calendar",
+    title: "15. Market-moving events calendar",
+    content: (
+      <>
+        <p>
+          The events that reliably move crude oil prices, and when to prepare. All times in
+          Italian timezone (CET/CEST — switch on last Sunday of March and October).
+        </p>
+
+        <h3>Weekly</h3>
+        <ul>
+          <li>
+            <strong>Tuesday ~22:30 CET</strong> — American Petroleum Institute (API) crude
+            stocks. Private industry report, first peek at Wednesday&apos;s EIA. Moves prices
+            in the overnight US session.
+          </li>
+          <li>
+            <strong>Wednesday 16:30 CET</strong> — EIA Weekly Petroleum Status Report.
+            <strong> THE weekly event.</strong> See section 14 for the full playbook.
+          </li>
+          <li>
+            <strong>Friday 19:00 CET</strong> — Baker Hughes US rig count. Not always
+            market-moving but watched for structural shifts in US production.
+          </li>
+          <li>
+            <strong>Friday 21:30 CET</strong> — CFTC Commitments of Traders for the prior
+            Tuesday. Released after market close. Shows speculative positioning shifts.
+            Moves prices on the Sunday open if positioning is extreme.
+          </li>
+        </ul>
+
+        <h3>Monthly</h3>
+        <ul>
+          <li>
+            <strong>Early month (variable)</strong> — IEA Oil Market Report. International
+            Energy Agency&apos;s global supply/demand update. Market-moving if it changes the
+            balance estimate.
+          </li>
+          <li>
+            <strong>Mid-month</strong> — OPEC Monthly Oil Market Report. OPEC&apos;s own view
+            of the market. Focus on the demand forecast changes.
+          </li>
+          <li>
+            <strong>Mid-month</strong> — EIA Short-Term Energy Outlook (STEO). US
+            government forecast.
+          </li>
+        </ul>
+
+        <h3>Quarterly / Event-driven</h3>
+        <ul>
+          <li>
+            <strong>OPEC+ Ministerial meetings</strong> — typically 4 times a year, but JMMC
+            (Joint Ministerial Monitoring Committee) meets every 2 months. These can deliver
+            production cut or increase announcements that move Brent 3-8% in hours. Dates
+            are published weeks in advance on the OPEC website.
+          </li>
+          <li>
+            <strong>US Federal Reserve FOMC meetings</strong> — 8 per year. Rate decisions
+            affect USD which inversely correlates with oil. Oil CFD traders should not be
+            in a big position going into FOMC unannounced.
+          </li>
+          <li>
+            <strong>Earnings season for oil majors</strong> — XOM, CVX, Shell, BP, TotalEnergies.
+            Their capex guidance moves the upstream supply narrative.
+          </li>
+        </ul>
+
+        <h3>Tactical: what to do the day before an event</h3>
+        <ul>
+          <li>Reduce leverage by half.</li>
+          <li>Widen stops to avoid being taken out by volatility spikes.</li>
+          <li>Flat positions by end of day if you cannot monitor the release.</li>
+          <li>Set personal alerts in /alerts for BRENT_PRICE threshold breaks to catch
+            moves if you&apos;re not watching.</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: "seasonality",
+    title: "16. Seasonal patterns",
+    content: (
+      <>
+        <p>
+          Crude oil prices follow recurring seasonal patterns driven by physical consumption
+          cycles. These are not forecasts — they&apos;re statistical tendencies that create the
+          <em> backdrop</em> against which catalysts play out.
+        </p>
+
+        <h3>By month — typical bias</h3>
+        <ul>
+          <li>
+            <strong>January</strong> — Refiners coming out of winter peak, crude demand
+            easing. Typically flat to slightly bearish.
+          </li>
+          <li>
+            <strong>February</strong> — Refinery maintenance season starts (turnarounds).
+            Crude intake drops temporarily. Neutral.
+          </li>
+          <li>
+            <strong>March</strong> — Maintenance continuing. Chinese demand returning post
+            Chinese New Year. Mixed.
+          </li>
+          <li>
+            <strong>April-May</strong> — Refineries restarting, building product inventories
+            ahead of summer driving season. <strong>Classic bullish period</strong> for crude.
+          </li>
+          <li>
+            <strong>June-August</strong> — Summer driving season US + Northern Hemisphere
+            peak demand. Gasoline cracks widen. Often bullish for crude if inventories are
+            tight, bearish if inventories are full.
+          </li>
+          <li>
+            <strong>September</strong> — End of driving season, gasoline demand drops.
+            Weakness often appears.
+          </li>
+          <li>
+            <strong>October</strong> — Transition month. Refineries switching to heating
+            oil production. Hurricane season still active (Gulf of Mexico risk).
+          </li>
+          <li>
+            <strong>November-December</strong> — Heating demand ramp-up. Distillate crack
+            widens. Often bullish if the winter starts cold.
+          </li>
+        </ul>
+
+        <h3>Recurring themes</h3>
+        <ul>
+          <li>
+            <strong>Hurricane season</strong> (June-November, peak Aug-Sep). Any tropical
+            system entering the Gulf of Mexico can halt ~15% of US crude production. Watch
+            /weather for tracks. Historically cat-3+ in western GOM = +3-8% on WTI in 48h.
+          </li>
+          <li>
+            <strong>Chinese Lunar New Year</strong> (late Jan / early Feb). Chinese industry
+            slows for ~2 weeks. Demand dips. Asian benchmarks underperform.
+          </li>
+          <li>
+            <strong>Ramadan</strong> (variable, lunar calendar). Iranian and Mid-East
+            loadings slow for ~1 month. Minor tightening in Asia.
+          </li>
+          <li>
+            <strong>US Memorial Day to Labor Day</strong> (late May to early Sep) = the
+            &quot;driving season&quot; window US traders obsess over. Gasoline inventories are the
+            key number.
+          </li>
+        </ul>
+
+        <h3>How to use seasonality in trading</h3>
+        <p>
+          Seasonal bias is a <strong>context</strong>, not a signal. You don&apos;t &quot;go long because
+          it&apos;s May&quot;. You note that May is seasonally bullish, then trade the actual setup
+          with a slightly higher conviction than you would in October.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "mistakes",
+    title: "17. Common retail mistakes (how to avoid them)",
+    content: (
+      <>
+        <p>
+          Patterns we&apos;ve seen wreck retail oil traders over and over. Avoiding even 3 of
+          these puts you ahead of 80% of participants.
+        </p>
+
+        <h3>1. Over-leveraging</h3>
+        <p>
+          Crude can move $3-5 in hours on news. With 10:1 leverage on a CFD, a $3 move on a
+          $80 price is a ~3.75% move on the position but a ~37.5% move on your margin.
+          Use 2-3:1 maximum for swing trades, never more than 5:1.
+        </p>
+
+        <h3>2. Trading through EIA / OPEC without a plan</h3>
+        <p>
+          Retail traders open positions 5 minutes before the release, &quot;just to participate&quot;.
+          They get filled on terrible prices, stopped out on wicks, and watch helplessly.
+          Either have a full plan (see section 14) or stand aside.
+        </p>
+
+        <h3>3. Averaging down</h3>
+        <p>
+          You go long at $85. It drops to $82. You double up to average $83.50. It drops to
+          $79. You double again. This is how a 1% risk trade becomes a 10% account loss.
+          <strong> Never average losers.</strong> If the trade is wrong, accept the loss.
+        </p>
+
+        <h3>4. News chasing</h3>
+        <p>
+          A headline hits: &quot;Houthis attack tanker in Red Sea&quot;. You see crude jump +1.5% in
+          30 seconds. You think &quot;I need to get in&quot;. You enter at the top. The move is over,
+          algos have already priced it. You get stopped out on the mean reversion.
+        </p>
+        <p>
+          <strong>Rule:</strong> news you see as a retail trader is already in the price.
+          The edge is in anticipating news via our flow data, not reacting to it.
+        </p>
+
+        <h3>5. No stop loss</h3>
+        <p>
+          &quot;I&apos;ll exit if it gets bad&quot;. In reality, when it gets bad you freeze, hope, and
+          lose. Set a hard stop on every entry. Accept that you&apos;ll be stopped out sometimes
+          — it&apos;s the cost of survival.
+        </p>
+
+        <h3>6. Weekend gap risk</h3>
+        <p>
+          Crude markets close Friday 22:00 CET and reopen Sunday 23:00 CET. Any geopolitical
+          event over the weekend creates a gap. If you hold a leveraged long and war breaks
+          out on Sunday, oil can gap +$5. If you hold a leveraged short in the same scenario,
+          your stop may not fill at the stop price. Reduce weekend exposure or close entirely
+          on Friday afternoon.
+        </p>
+
+        <h3>7. Ignoring the curve structure</h3>
+        <p>
+          Going long crude in deep contango (like Q2 2020) is fighting the tape: the forward
+          curve is telling you the physical market has no demand. Going short in steep
+          backwardation (like mid-2022) is the same mistake in reverse. Check /signals &quot;Brent
+          Structure&quot; before any swing trade.
+        </p>
+
+        <h3>8. Trading correlated markets as if independent</h3>
+        <p>
+          Long WTI + short DXY + long XOP = all the same bet. If oil crashes, all three
+          lose. Diversification is real, but inside crude you&apos;re not diversified.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "correlations",
+    title: "18. Key correlations to watch",
+    content: (
+      <>
+        <p>
+          Crude oil does not trade in isolation. These are the markets you should have on a
+          side screen when you&apos;re in a position.
+        </p>
+
+        <h3>Oil vs USD (DXY)</h3>
+        <p>
+          Historically <strong>inverse</strong>. When the dollar strengthens, oil priced in
+          USD becomes more expensive for non-US buyers, demand softens. Typical correlation
+          −0.5 to −0.7. Breaks down when oil is moved by supply shocks (correlation can
+          temporarily turn positive).
+        </p>
+
+        <h3>Oil vs S&amp;P 500</h3>
+        <p>
+          Positive <strong>when risk-on</strong>: equities up = economic optimism = oil up.
+          Inverse during stagflation fears. The relationship flips regimes — check whether
+          they&apos;re moving together or apart in the last 5 sessions before assuming.
+        </p>
+
+        <h3>Oil vs energy stocks (XLE, XOP, XOM, CVX)</h3>
+        <p>
+          Very tightly correlated with crude but with leverage amplification: a 2% oil move
+          often becomes a 3-4% move in E&amp;P names. Divergences (oil up, E&amp;P flat) often
+          precede a correction in oil.
+        </p>
+
+        <h3>Oil vs natural gas (NG)</h3>
+        <p>
+          Weakly correlated. Gas has its own drivers (US weather, LNG exports, Asian demand).
+          Sometimes they move together on macro, often they decouple. Don&apos;t assume.
+        </p>
+
+        <h3>Brent vs WTI</h3>
+        <p>
+          Normal spread: Brent trades at $2-5 premium to WTI (Brent is slightly heavier,
+          plus Atlantic basin supply/demand). Spread widens when US supply is abundant or
+          Atlantic tight. Spread inverts rarely — usually a sign of US tightness.
+        </p>
+
+        <h3>Brent vs Dubai (EFS)</h3>
+        <p>
+          Brent normally $1-3 over Dubai. Tight when Asia is tight (Mid-East buyers compete
+          for Brent), wide when Atlantic is tight.
+        </p>
+
+        <h3>Oil vs gold</h3>
+        <p>
+          Both inflation hedges. Positive correlation in inflation regimes, uncorrelated
+          most of the time. Gold is not predictive of oil.
+        </p>
+
+        <h3>Oil vs US 10Y yield</h3>
+        <p>
+          Both track inflation expectations. Positive correlation during reflation phases,
+          negative during recession fears (bonds up = yields down, oil down on demand fear).
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "case-studies",
+    title: "19. Historical case studies",
+    content: (
+      <>
+        <p>
+          Three recent events that moved crude hard, with what a data-driven trader would
+          have seen before the move.
+        </p>
+
+        <h3>April 2020 — WTI goes negative</h3>
+        <p>
+          On 20 April 2020, WTI front-month settled at <strong>−$37.63/bbl</strong> — the
+          first negative settle ever. Cause: Covid demand destruction + producers unable to
+          halt wells + Cushing storage physically full + front-month contract expiring with
+          holders forced to take delivery they had nowhere to put.
+        </p>
+        <p>
+          <strong>What signals would have warned early:</strong>
+        </p>
+        <ul>
+          <li>Floating storage detector would have shown 150+ VLCCs idle by early April (vs ~30 normal).</li>
+          <li>Contango arbitrage on WTI was profitable at $20/bbl spread — extreme.</li>
+          <li>Storage ratio &gt;60%.</li>
+          <li>Crack spread crashed to near-zero (refineries not buying).</li>
+          <li>EIA showed record builds week after week.</li>
+        </ul>
+        <p>
+          <strong>Lesson:</strong> when all our signals turn maximally bearish simultaneously,
+          the market can reach extremes you wouldn&apos;t believe possible. Respect that.
+        </p>
+
+        <h3>February 2022 — Russia invades Ukraine</h3>
+        <p>
+          On 24 February 2022, Russia invaded Ukraine. Brent jumped from $97 to $139 within
+          2 weeks. Many retail traders bought the spike and got crushed as the price
+          retraced to $95 by August.
+        </p>
+        <p>
+          <strong>What signals would have warned early:</strong>
+        </p>
+        <ul>
+          <li>Russian Baltic exports ramped up in Jan-Feb 2022 (sanctions front-running).</li>
+          <li>Managed Money CFTC long positioning at multi-year highs (crowded trade).</li>
+          <li>Brent forward curve moved into steep backwardation as buyers bid up prompt.</li>
+          <li>News headlines about Russian troop build-up started in late Jan.</li>
+        </ul>
+        <p>
+          <strong>Lesson:</strong> early positioning based on flow data caught the rise.
+          Chasing the spike on day 1 was the losing trade. Always check CFTC — if everyone
+          is already long, you&apos;re late.
+        </p>
+
+        <h3>October 2023 — Israel-Hamas war</h3>
+        <p>
+          On 7 October 2023, Hamas attacked Israel. Brent gapped from $84 to $89 on Monday
+          open. Many expected a sustained rally. Within 2 weeks Brent was back below $85.
+        </p>
+        <p>
+          <strong>What signals would have warned &quot;this is a fade&quot;:</strong>
+        </p>
+        <ul>
+          <li>Hormuz transit count stayed normal (the chokepoint was not threatened).</li>
+          <li>Israeli crude production is zero (not a producer), so no direct supply hit.</li>
+          <li>OPEC+ had spare capacity (Saudi could add 2M b/d if needed).</li>
+          <li>The war didn&apos;t physically affect any crude flow in its first weeks.</li>
+        </ul>
+        <p>
+          <strong>Lesson:</strong> a geopolitical headline isn&apos;t automatically a sustained
+          rally. Ask &quot;does this actually reduce barrels on the water?&quot;. If no, fade.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "position-sizing",
+    title: "20. Position sizing & risk management",
+    content: (
+      <>
+        <p>
+          The math that separates survivors from dead accounts. Not optional.
+        </p>
+
+        <h3>The 1-2% rule</h3>
+        <p>
+          Never risk more than 1-2% of your account on a single trade. Risk = the amount you
+          lose if your stop is hit.
+        </p>
+        <p className="font-mono text-[11px] bg-bg2 p-2 rounded">
+          Max position size = (Account × 0.02) / (Entry − Stop)
+        </p>
+        <p>
+          Example: €10,000 account. You want to go long Brent at $85 with a stop at $83.
+          Max risk = €200. Distance = $2 = 2% of price. Position size = €200 / ($2/bbl ×
+          contract size).
+        </p>
+        <p>
+          For CL micro futures (100 barrels), $2 move = $200 loss. You can buy exactly 1
+          contract.
+        </p>
+        <p>
+          For Brent CFD with €1 per $0.01 tick on a 10 barrel contract, $2 move = €200.
+          Exactly 1 lot.
+        </p>
+
+        <h3>Volatility-adjusted sizing</h3>
+        <p>
+          Crude has different regimes. In low-vol periods (ATR $1/day) you can size up. In
+          high-vol (ATR $3/day) you size down. A good rule: set your stop at 1.5× ATR to
+          avoid being taken out by noise, then size position so the 1.5×ATR loss equals 1-2%
+          of the account.
+        </p>
+
+        <h3>The 6% monthly drawdown rule</h3>
+        <p>
+          If your account is down 6% in any calendar month, <strong>stop trading for the
+          rest of the month</strong>. Don&apos;t try to &quot;win it back&quot;. That&apos;s how 6% becomes 20%.
+          Review what went wrong, journal it, restart next month.
+        </p>
+
+        <h3>Correlation-aware sizing</h3>
+        <p>
+          If you&apos;re long WTI AND long Brent AND long XLE, that&apos;s not 3 trades — it&apos;s 1
+          trade at 3× size. Treat it as one position for risk purposes. Don&apos;t kid yourself.
+        </p>
+
+        <h3>Trade journal — non negotiable</h3>
+        <p>
+          Keep a spreadsheet. For every trade: entry date, instrument, direction, size,
+          entry price, stop, target, exit date, exit price, P/L, which InsideOil signals
+          triggered the entry, what you learned. Review monthly. Without a journal, you
+          will repeat the same mistakes forever.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "platform-limits",
+    title: "21. Platform limitations (honest)",
+    content: (
+      <>
+        <p>
+          We believe in honesty more than marketing. Here&apos;s exactly what InsideOil does NOT
+          do, so you can calibrate your expectations.
+        </p>
+
+        <h3>AIS coverage is not truly global</h3>
+        <p>
+          We use AISStream.io free tier, which aggregates data from terrestrial AIS receivers
+          (volunteer-run radio stations on the coast). Coverage is strongest in Europe, US,
+          East Asia. Persian Gulf, Red Sea, West Africa and Indian Ocean are partially dark
+          — in particular the Strait of Hormuz shows underestimated counts, and some OPEC
+          terminals (Kharg, Ras Tanura) have low visibility.
+        </p>
+        <p>
+          Full global satellite AIS (Spire, exactEarth) costs thousands of euros per month.
+          We are considering Global Fishing Watch API (free for research) as a second source.
+        </p>
+
+        <h3>BDTI is synthetic</h3>
+        <p>
+          The official Baltic Dirty Tanker Index is paywalled by the Baltic Exchange. We
+          proxy it via the BWET ETF and a calibration formula. Our BDTI value tracks the real
+          one directionally but is not the official print. VLCC TCE is a further heuristic
+          on top of that. Treat these as regime indicators, not as authoritative numbers.
+        </p>
+
+        <h3>Price data is delayed</h3>
+        <p>
+          Futures prices come from Yahoo Finance free API. They are delayed ~15 minutes.
+          For scalping inside 15 minutes you need a dedicated real-time feed from your
+          broker.
+        </p>
+
+        <h3>We do not provide</h3>
+        <ul>
+          <li>Order book depth / Level 2 / DOM</li>
+          <li>Sub-minute price data</li>
+          <li>ML price forecasts (we show flow data; you interpret it)</li>
+          <li>Options chain data or implied volatility</li>
+          <li>Backtesting engine</li>
+          <li>Brokerage execution — InsideOil is an intelligence tool, not a broker</li>
+        </ul>
+
+        <h3>Signal accuracy</h3>
+        <p>
+          Our floating-storage detector is ~85% accurate vs commercial providers (Kpler claim ~95%).
+          OPEC compliance scoring is ~75% accurate vs Kpler&apos;s ~95% — mostly due to AIS
+          coverage gaps. Chokepoint flow is accurate for the 5 well-covered straits (Danish,
+          Malacca, Bosphorus, Suez); Hormuz and Bab-el-Mandeb are undercounted. All signals
+          are directional, not gospel.
+        </p>
+
+        <h3>This is not financial advice</h3>
+        <p>
+          Everything on InsideOil — signals, decisions, recommendations — is <strong>information</strong>,
+          not advice. You are responsible for your own trading decisions. Past performance
+          does not predict future results. Trading crude oil CFDs and futures involves
+          significant risk of loss.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "faq",
+    title: "22. Frequently asked questions",
+    content: (
+      <>
+        <h3>General</h3>
+        <p>
+          <strong>Q: What broker should I use?</strong>
+          <br />
+          A: We don&apos;t recommend specific brokers. Look for: regulation (FCA, CySEC, ESMA for
+          EU), tight spreads on CL/BZ (&lt;$0.03), reasonable overnight financing, micro
+          contracts available for small accounts, responsive customer service.
+        </p>
+        <p>
+          <strong>Q: CFD or futures?</strong>
+          <br />
+          A: CFDs are easier for small accounts and most retail brokers offer them. Futures
+          (CL, BZ, MCL micro) offer better pricing, no overnight financing, and regulated
+          exchanges — but require a futures broker account. If your account is below €10k,
+          CFDs are more accessible.
+        </p>
+        <p>
+          <strong>Q: Why are your Persian Gulf numbers different from MarineTraffic?</strong>
+          <br />
+          A: MarineTraffic has paid satellite AIS feeds and a denser receiver network. Our
+          free AISStream feed under-covers the Persian Gulf. This is the main known
+          limitation — see section 21 for the full explanation.
+        </p>
+        <p>
+          <strong>Q: Are your prices real-time?</strong>
+          <br />
+          A: Futures prices from Yahoo are 15-min delayed. AIS vessel positions are live
+          (within seconds). EIA / CFTC data is at the official release time.
+        </p>
+        <p>
+          <strong>Q: Can I use this for algo trading?</strong>
+          <br />
+          A: Our APIs are designed for UI, not for high-frequency algo feeds. You could
+          poll our /api/signals endpoint from a script but we don&apos;t officially support it
+          and rate-limit aggressively.
+        </p>
+
+        <h3>Signals</h3>
+        <p>
+          <strong>Q: Why does Floating Storage show 0 ships?</strong>
+          <br />
+          A: The detector needs at least 5 days of continuous position history to flag a
+          vessel as idle. After fresh deploys or long worker downtime, expect 0 candidates
+          for the first few days.
+        </p>
+        <p>
+          <strong>Q: What does &quot;NO ARB&quot; mean on contango arbitrage?</strong>
+          <br />
+          A: It means that, given current forward curve + freight + financing + insurance,
+          storing crude on a VLCC and selling forward is NOT profitable. This is the normal
+          state when the market is tight or balanced. Only in deep oversupply (like
+          2020) does the arb open up.
+        </p>
+        <p>
+          <strong>Q: How often are signals updated?</strong>
+          <br />
+          A: Every 5 minutes, via UptimeRobot pinging our cron endpoint.
+        </p>
+
+        <h3>Alerts</h3>
+        <p>
+          <strong>Q: How often do alerts check?</strong>
+          <br />
+          A: Every 5 minutes. You&apos;ll receive an email within 5-6 minutes of the threshold
+          being crossed.
+        </p>
+        <p>
+          <strong>Q: Can I get SMS / Telegram / push notifications?</strong>
+          <br />
+          A: Not yet. Email only in the current version. Telegram bot integration is on the
+          roadmap.
+        </p>
+        <p>
+          <strong>Q: Will the same alert re-fire if the condition stays true?</strong>
+          <br />
+          A: The alert updates its last value every check. For &quot;gt&quot; / &quot;lt&quot; comparators it
+          will re-fire every check as long as the condition holds. For &quot;change_pct&quot; it
+          only fires on a fresh move &gt;= threshold.
+        </p>
+
+        <h3>Technical</h3>
+        <p>
+          <strong>Q: Why is the worker on my Mac and not in the cloud?</strong>
+          <br />
+          A: Because free cloud providers that support long-running WebSocket workers now
+          require a credit card (Render, Railway, Fly). We chose to keep the Mac option to
+          avoid any payment. If your Mac is offline, data collection pauses.
+        </p>
+        <p>
+          <strong>Q: How much data do we store?</strong>
+          <br />
+          A: AIS positions are kept for 30 days, aircraft snapshots for 7 days, price
+          curves indefinitely (small). Total Postgres usage is well within Neon&apos;s free
+          tier.
+        </p>
+      </>
+    ),
+  },
 ];
 
 export default function EducationPage() {
