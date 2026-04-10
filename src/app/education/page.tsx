@@ -1135,8 +1135,152 @@ const SECTIONS: Array<{ id: string; title: string; content: React.ReactNode }> =
     ),
   },
   {
+    id: "morning-brief",
+    title: "22. Morning Brief — the daily auto-generated summary",
+    content: (
+      <>
+        <p>
+          Every time you load the <strong>/briefing</strong> page, InsideOil generates a plain-language
+          summary of what moved overnight and what the data is saying right now. This is the
+          retail equivalent of the <em>Platts Oil Telegram</em> or <em>Argus Daily</em> — paid
+          morning briefs that physical crude desks read at 06:30 — but built from our free feeds.
+        </p>
+        <h3>What&apos;s in it</h3>
+        <ul>
+          <li><strong>One-line summary</strong> with an overall tone badge (bullish / bearish / neutral / mixed)</li>
+          <li><strong>Price action</strong> — Brent, WTI, spread, vs yesterday</li>
+          <li><strong>Forward curve</strong> — contango/backwardation with 6-month spread</li>
+          <li><strong>Freight market</strong> — BDTI and implied VLCC TCE</li>
+          <li><strong>Fleet &amp; chokepoints</strong> — floating storage count + chokepoint anomalies</li>
+          <li><strong>Headlines overnight</strong> — top 5 oil-related news items from the last 12 hours</li>
+          <li><strong>Catalysts next 48h</strong> — upcoming events from the Calendar</li>
+        </ul>
+        <h3>How to use it</h3>
+        <p>
+          Open /briefing as the first thing every morning. In 60 seconds you know exactly where the
+          market stands, what moved, what&apos;s coming. Decide if your positions need adjustment before
+          you do anything else.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "calendar",
+    title: "23. Economic Calendar — what to watch this week",
+    content: (
+      <>
+        <p>
+          The <strong>/calendar</strong> page lists every upcoming market-moving event for crude
+          oil in the next 14 days, with live countdown timers. Built from static recurring rules
+          (EIA every Wednesday, CFTC every Friday, etc.) plus scheduled one-offs (OPEC+ meetings,
+          FOMC dates).
+        </p>
+        <h3>Impact levels</h3>
+        <ul>
+          <li><strong>HIGH</strong> — reliably moves prices 1-3%. EIA Weekly, OPEC+ JMMC, FOMC, IEA report. Plan your day around these.</li>
+          <li><strong>MEDIUM</strong> — moves prices 0.3-1%. API, CFTC, IEA monthly. Watch but don&apos;t panic.</li>
+          <li><strong>LOW</strong> — informational. Baker Hughes rig count, minor releases.</li>
+        </ul>
+        <h3>The MOC window countdown</h3>
+        <p>
+          At the top of the Calendar page you&apos;ll find a live countdown to the next <strong>Platts
+          MOC window</strong> (17:00-17:30 CET, business days). This is the daily 30-minute period
+          when Platts sets the Dated Brent benchmark via a structured bid/offer auction. For
+          retail Brent CFD traders, expect <strong>elevated volatility</strong> in this window.
+        </p>
+        <p>
+          Rule: if you don&apos;t have a specific plan for MOC volatility, stay flat between 17:00 and
+          17:30 CET.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "portfolio",
+    title: "24. Portfolio / Trade Journal — log every trade",
+    content: (
+      <>
+        <p>
+          The <strong>/portfolio</strong> page is your personal trade journal. You log every
+          position you take: entry, stop, target, size, notes. The app tracks live P&amp;L for open
+          positions against current market prices, and records realised P&amp;L when you close.
+        </p>
+        <p>
+          This is the retail equivalent of the <em>CTRM system</em> (Commodity Trading and Risk
+          Management — Openlink, Triple Point, RightAngle) that every physical crude desk uses to
+          manage positions. Retail traders without a journal repeat the same mistakes forever.
+          With one, you learn from every trade.
+        </p>
+        <h3>How to log a trade</h3>
+        <ul>
+          <li>Click <strong>+ New trade</strong>.</li>
+          <li><strong>Instrument</strong>: Brent or WTI (these match our live price feeds so P&amp;L computes automatically).</li>
+          <li><strong>Direction</strong>: LONG (bullish) or SHORT (bearish).</li>
+          <li><strong>Entry price</strong>: the price at which you actually entered.</li>
+          <li><strong>Size</strong>: number of barrels or contracts.</li>
+          <li><strong>Stop loss / Target</strong>: your planned exit levels.</li>
+          <li><strong>Notes</strong>: <em>why</em> you took this trade. Which InsideOil signals justified it? This is the most important field. Examples: &quot;EIA surprise draw -4M&quot; or &quot;Brent backwardation + Hormuz transit −25%&quot;.</li>
+        </ul>
+        <h3>Live P&amp;L</h3>
+        <p>
+          For each OPEN position, the app automatically fetches the latest spot price from our
+          feed and shows current unrealised P&amp;L — both $/bbl and total in $. CLOSED positions
+          show realised P&amp;L at close.
+        </p>
+        <h3>Closing a trade</h3>
+        <p>
+          Click <strong>Close</strong> next to the trade, enter the exit price, and the app
+          computes the realised P&amp;L and moves it to the &quot;Closed trades&quot; section.
+        </p>
+        <h3>Reviewing</h3>
+        <p>
+          Every Sunday, review your closed trades. Look at the notes. Which signals led to winners?
+          Which to losers? Update your own mental model. After 20-30 trades the pattern becomes clear.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "risk-calculator",
+    title: "25. Risk calculator — size every trade properly",
+    content: (
+      <>
+        <p>
+          The <strong>Risk Calculator</strong> sits in the right sidebar of the /portfolio page
+          (on desktop). Enter entry + stop + size and it shows you exactly how much money you will
+          lose if the stop is hit.
+        </p>
+        <h3>The rule you must follow</h3>
+        <p>
+          <strong>Never risk more than 1-2% of your account on a single trade.</strong> This is
+          non-negotiable discipline. It&apos;s the difference between surviving a losing streak and
+          blowing up your account.
+        </p>
+        <h3>Example</h3>
+        <p className="font-mono text-[11px] bg-bg2 p-3 rounded">
+          Account: €10,000<br />
+          Max risk per trade: 2% = €200<br />
+          Brent entry: $85.00<br />
+          Stop loss: $83.00<br />
+          Risk per bbl: $2.00<br />
+          Max size: $200 / $2 = 100 bbl
+        </p>
+        <p>
+          So for this setup, you log 100 bbl (or 1 micro futures contract MCL). If you&apos;re trading
+          CFDs, convert to your broker&apos;s contract size.
+        </p>
+        <h3>Common mistake</h3>
+        <p>
+          Retail traders over-leverage because a $100 move on a $85 barrel is &quot;only&quot; 1.2%. But
+          with 20:1 CFD leverage on a 1000-bbl position, that $100 move is $1000 on a $50 margin —
+          a 20× overnight. The risk calculator keeps you honest about actual euro loss.
+        </p>
+      </>
+    ),
+  },
+  {
     id: "faq",
-    title: "22. Frequently asked questions",
+    title: "26. Frequently asked questions",
     content: (
       <>
         <h3>General</h3>

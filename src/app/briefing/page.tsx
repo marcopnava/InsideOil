@@ -5,6 +5,7 @@ import { Card } from "@/components/card";
 import { Sparkline } from "@/components/sparkline";
 import { AppShell } from "@/components/app-shell";
 import { PageHelp } from "@/components/page-help";
+import { MorningBriefCard } from "@/components/morning-brief-card";
 
 const BRIEFING_HELP = {
   title: "Daily Briefing — what am I looking at?",
@@ -109,6 +110,11 @@ export default function BriefingPage() {
           </div>
         ) : <div className="text-text3 text-xs text-center py-8">Generating briefing...</div>}
       </Card>
+
+      {/* Auto-generated Morning Brief */}
+      <div className="mb-5">
+        <MorningBriefCard />
+      </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5">

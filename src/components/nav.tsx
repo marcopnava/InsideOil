@@ -27,12 +27,14 @@ const clientLinks: NavItem[] = [
   { href: "/tracking", label: "Live Map" },
   { href: "/trade", label: "Trade" },
   { href: "/signals", label: "Signals" },
+  { href: "/portfolio", label: "Portfolio" },
+  { href: "/calendar", label: "Calendar" },
   { href: "/ports", label: "Ports" },
-  { href: "/weather", label: "Weather" },
   { href: "/news", label: "News" },
   {
     label: "More",
     children: [
+      { href: "/weather", label: "Weather" },
       { href: "/differentials", label: "Differentials & Macro" },
       { href: "/russia", label: "Russia Tracker" },
     ],

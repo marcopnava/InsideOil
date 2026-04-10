@@ -262,6 +262,33 @@ model PriceCurve {
   @@map("price_curves")
 }
 
+// ─── Personal trade journal / portfolio ────────────────────
+
+model TradeJournalEntry {
+  id            String    @id @default(cuid())
+  userId        String
+  instrument    String    // BRENT, WTI, CL, BZ, etc.
+  direction     String    // LONG or SHORT
+  entryPrice    Float
+  size          Float     // contracts or barrels
+  sizeUnit      String    @default("bbl") // bbl, contracts
+  stopLoss      Float?
+  target        Float?
+  notes         String?
+  signalsUsed   Json?     // array of signal names used to justify the trade
+  status        String    @default("OPEN") // OPEN, CLOSED
+  exitPrice     Float?
+  exitReason    String?   // TARGET, STOP, MANUAL, EXPIRED
+  pnlBbl        Float?    // realised $/bbl at close
+  pnlTotal      Float?    // realised $ total
+  openedAt      DateTime  @default(now())
+  closedAt      DateTime?
+
+  @@index([userId, status])
+  @@index([openedAt])
+  @@map("trade_journal_entries")
+}
+
 // ─── User-defined alerts ────────────────────────────────────
 
 model UserAlert {
