@@ -103,6 +103,10 @@ export async function computeChokepointFlow(): Promise<ChokepointFlowReport> {
     select: { mmsi: true, lat: true, lng: true, shipType: true, speed: true },
   });
 
+  // Fast-path: skip history queries entirely if ais_positions is empty
+  const since24h = new Date(Date.now() - 86400_000);
+  const hasHistory = (await db.aisPosition.count({ where: { timestamp: { gte: since24h } } })) > 0;
+
   const reports: ChokepointReport[] = [];
   const globalAlerts: string[] = [];
 
@@ -122,8 +126,22 @@ export async function computeChokepointFlow(): Promise<ChokepointFlowReport> {
         ? Math.round((moving.reduce((s, v) => s + (v.speed ?? 0), 0) / moving.length) * 10) / 10
         : 0;
 
-    // 24h unique tanker transits via ais_positions
-    const since24h = new Date(Date.now() - 86400_000);
+    // 24h unique tanker transits via ais_positions — skip if no history
+    if (!hasHistory) {
+      reports.push({
+        id: cp.id,
+        name: cp.name,
+        share: cp.share,
+        strategic: cp.strategic,
+        current: { tankers, cargo, total: inZone.length, avgSpeed },
+        transit24h: 0,
+        avg7d: 0,
+        changePct: 0,
+        status: "no-data",
+        alert: null,
+      });
+      continue;
+    }
     const transitRows = await db.aisPosition.findMany({
       where: {
         timestamp: { gte: since24h },

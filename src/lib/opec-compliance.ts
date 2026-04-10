@@ -46,6 +46,28 @@ const WINDOW_DAYS = 30;
 export async function computeOpecCompliance(): Promise<OpecComplianceReport> {
   const since = new Date(Date.now() - WINDOW_DAYS * 86400_000);
 
+  // Fast-path: skip entirely if no position history yet
+  const hasHistory = (await db.aisPosition.count({ where: { timestamp: { gte: since } } })) > 0;
+  if (!hasHistory) {
+    return {
+      generatedAt: new Date().toISOString(),
+      windowDays: WINDOW_DAYS,
+      countries: OPEC_QUOTAS.map((q) => ({
+        country: q.country,
+        quotaKbd: q.quotaKbd,
+        loadings: 0,
+        estimatedKbd: 0,
+        compliancePct: 0,
+        over: false,
+        delta: -q.quotaKbd,
+      })),
+      totalQuotaKbd: OPEC_QUOTAS.reduce((s, q) => s + q.quotaKbd, 0),
+      totalEstimatedKbd: 0,
+      groupCompliancePct: 0,
+      alerts: [],
+    };
+  }
+
   const reports: CountryReport[] = [];
   const alerts: string[] = [];
 
