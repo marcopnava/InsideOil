@@ -1262,17 +1262,36 @@ export default function EducationPage() {
   return (
     <AppShell>
       <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
-        <div className="mb-8">
-          <div className="text-[11px] font-semibold text-text3 uppercase tracking-[0.07em]">Knowledge Base</div>
-          <h1 className="text-[30px] font-bold tracking-[-0.035em] mt-1">Education</h1>
-          <p className="text-sm text-text3 mt-1">
+        <div className="mb-6 sm:mb-8">
+          <div className="text-[10px] sm:text-[11px] font-semibold text-text3 uppercase tracking-[0.07em]">Knowledge Base</div>
+          <h1 className="text-[26px] sm:text-[30px] font-bold tracking-[-0.035em] mt-1">Education</h1>
+          <p className="text-[12px] sm:text-sm text-text3 mt-1">
             Every metric, every page, every data feed — explained in plain language for traders.
           </p>
         </div>
 
+        {/* Mobile: top horizontal scroller with section chips */}
+        <div className="lg:hidden -mx-4 sm:-mx-6 px-4 sm:px-6 mb-5 sticky top-[var(--nav-h)] z-30 bg-bg/95 backdrop-blur-sm py-2 border-b border-border">
+          <nav className="scroll-x flex gap-1.5 pb-1">
+            {SECTIONS.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors no-underline whitespace-nowrap ${
+                  active === s.id
+                    ? "bg-text text-white"
+                    : "bg-white border border-border text-text2"
+                }`}
+              >
+                {s.title.split(" — ")[0].split(".")[0].trim() || s.title}
+              </a>
+            ))}
+          </nav>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-          {/* Sidebar nav */}
-          <aside className="lg:sticky lg:top-[calc(var(--nav-h)+24px)] lg:self-start lg:max-h-[calc(100vh-var(--nav-h)-48px)] lg:overflow-y-auto">
+          {/* Sidebar nav (desktop only) */}
+          <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--nav-h)+24px)] lg:self-start lg:max-h-[calc(100vh-var(--nav-h)-48px)] lg:overflow-y-auto">
             <nav className="flex flex-col gap-1 text-[12px]">
               {SECTIONS.map((s) => (
                 <a
@@ -1296,12 +1315,12 @@ export default function EducationPage() {
               <section
                 key={s.id}
                 id={s.id}
-                className="mb-10 scroll-mt-[calc(var(--nav-h)+16px)]"
+                className="mb-10 scroll-mt-[calc(var(--nav-h)+60px)] lg:scroll-mt-[calc(var(--nav-h)+16px)]"
               >
-                <h2 className="text-[22px] font-bold tracking-[-0.025em] text-text mb-4 pb-2 border-b border-border">
+                <h2 className="text-[20px] sm:text-[22px] font-bold tracking-[-0.025em] text-text mb-4 pb-2 border-b border-border">
                   {s.title}
                 </h2>
-                <div className="education-body text-[13.5px] leading-[1.7] text-text2 [&_h3]:text-[14px] [&_h3]:font-bold [&_h3]:text-text [&_h3]:mt-5 [&_h3]:mb-2 [&_p]:mb-3 [&_ul]:my-3 [&_ul]:pl-5 [&_li]:mb-1 [&_li]:list-disc [&_strong]:text-text [&_strong]:font-semibold [&_a]:text-accent">
+                <div className="education-body text-[13px] sm:text-[13.5px] leading-[1.7] text-text2 [&_h3]:text-[14px] [&_h3]:font-bold [&_h3]:text-text [&_h3]:mt-5 [&_h3]:mb-2 [&_p]:mb-3 [&_ul]:my-3 [&_ul]:pl-5 [&_li]:mb-1 [&_li]:list-disc [&_strong]:text-text [&_strong]:font-semibold [&_a]:text-accent [&_pre]:overflow-x-auto">
                   {s.content}
                 </div>
               </section>

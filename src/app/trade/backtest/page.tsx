@@ -115,7 +115,7 @@ export default function BacktestPage() {
 
           {/* Trade Log */}
           <Card title="All Trades" badge={{ text: `${data.stats.totalTrades} trades` }}>
-            <div className="overflow-x-auto">
+            <div className="scroll-x">
               <table className="w-full border-collapse">
                 <thead><tr>
                   {["Entry Date", "Exit Date", "Direction", "Entry", "Exit", "P&L", "Hold", "Signal"].map((h) => (

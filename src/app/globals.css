@@ -28,12 +28,41 @@ html {
   background: #fafafa;
   color: #111111;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   min-height: 100vh;
   overflow-x: hidden;
+  /* iOS safe-area padding so notch/home-indicator don't eat content */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
+
+/* Make touch targets a minimum 44×44 on mobile (Apple HIG) */
+@media (pointer: coarse) {
+  button, a[role="button"], [role="button"] {
+    min-height: 40px;
+  }
+}
+
+/* Smooth momentum scroll on tables and horizontal scrollers */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.scroll-x::-webkit-scrollbar {
+  height: 4px;
+}
+.scroll-x::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+
+/* Prevent 100vh issues on mobile Safari */
+.h-dvh { height: 100dvh; }
 
 /* Leaflet overrides */
 .leaflet-container {

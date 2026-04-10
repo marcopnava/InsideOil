@@ -225,7 +225,7 @@ export default function ProposalPage() {
           {/* Portfolio History */}
           {pf && pf.entries.length > 0 && (
             <Card title="Proposal History" badge={{ text: `${pf.entries.length} proposals` }}>
-              <div className="overflow-x-auto">
+              <div className="scroll-x">
                 <table className="w-full border-collapse">
                   <thead><tr>
                     {["Date", "Action", "Entry", "Target", "Stop", "Score", "Status", "P&L"].map((h) => (

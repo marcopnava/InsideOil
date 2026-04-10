@@ -313,7 +313,7 @@ export default function TradePage() {
       {/* Chokepoints + Speed */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
         <Card title="Chokepoint Monitor" badge={{ text: "Real-time" }}>
-          <div className="overflow-x-auto">
+          <div className="scroll-x">
             <table className="w-full border-collapse">
               <thead><tr>
                 {["Chokepoint", "Total", "Tankers", "Avg Speed", "Status"].map((h) => (

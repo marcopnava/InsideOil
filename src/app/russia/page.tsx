@@ -119,7 +119,7 @@ export default function RussiaPage() {
                   {t.vessels.length === 0 ? (
                     <div className="text-text3 text-xs">No tankers in radius right now.</div>
                   ) : (
-                    <div className="overflow-x-auto -mx-6 px-6 max-h-[280px] overflow-y-auto">
+                    <div className="scroll-x -mx-6 px-6 max-h-[280px] overflow-y-auto">
                       <table className="w-full text-[11px]">
                         <thead>
                           <tr className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em]">
@@ -164,7 +164,7 @@ export default function RussiaPage() {
                   No tanker matches the dark-fleet signature near Russian terminals right now. This typically appears when sanctioned tonnage is loading.
                 </div>
               ) : (
-                <div className="overflow-x-auto -mx-6 px-6 max-h-[420px] overflow-y-auto">
+                <div className="scroll-x -mx-6 px-6 max-h-[420px] overflow-y-auto">
                   <table className="w-full text-[11px]">
                     <thead>
                       <tr className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em]">

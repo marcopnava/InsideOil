@@ -76,7 +76,7 @@ export default function CalendarPage() {
 
           {/* Full calendar */}
           <Card title="Upcoming Events" badge={{ text: `${data.events.length} events` }}>
-            <div className="overflow-x-auto">
+            <div className="scroll-x">
               <table className="w-full border-collapse">
                 <thead><tr>
                   {["Date", "Time", "Event", "Impact", "Category"].map((h) => (

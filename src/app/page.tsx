@@ -170,17 +170,17 @@ const competitors = [
 
 function CompetitorSection() {
   return (
-    <section id="comparison" className="py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-bg">
+    <section id="comparison" className="py-16 sm:py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-bg">
       <div className="max-w-[1100px] mx-auto">
         <FadeIn>
-          <div className="text-center mb-12">
+          <div className="text-center mb-10 sm:mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white mb-5">
-              <span className="text-[11px] font-semibold text-text3 uppercase tracking-[0.08em]">The alternative</span>
+              <span className="text-[10px] sm:text-[11px] font-semibold text-text3 uppercase tracking-[0.08em]">The alternative</span>
             </div>
-            <h2 className="text-[36px] font-bold tracking-[-0.035em] leading-[1.1] max-w-[820px] mx-auto">
+            <h2 className="text-[26px] sm:text-[32px] md:text-[36px] font-bold tracking-[-0.035em] leading-[1.15] max-w-[820px] mx-auto px-2">
               The institutional stack costs €18,000 to €120,000 a year.
             </h2>
-            <p className="text-[15px] text-text2 mt-4 max-w-[680px] mx-auto leading-[1.6]">
+            <p className="text-[13px] sm:text-[15px] text-text2 mt-4 max-w-[680px] mx-auto leading-[1.6] px-2">
               Kpler, Vortexa, Bloomberg, LSEG — the data Western hedge funds and oil majors use
               to trade crude. InsideOil Trader is <strong className="text-text">€990 a year</strong>.
               Institutional is <strong className="text-text">€4,990</strong>. Same class of signals,
@@ -189,18 +189,61 @@ function CompetitorSection() {
           </div>
         </FadeIn>
 
-        <div className="bg-white border border-border rounded-[14px] overflow-hidden">
+        {/* ─── Mobile layout: card stack ─────────────────── */}
+        <div className="md:hidden flex flex-col gap-3">
+          {/* InsideOil highlighted */}
+          <div className="bg-white border-2 border-accent rounded-[12px] p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <div className="text-[16px] font-bold text-text">InsideOil</div>
+                <div className="text-[11px] text-text2 mt-0.5">Trader / Institutional</div>
+              </div>
+              <span className="text-[9px] font-bold text-accent bg-accent-soft px-2 py-[3px] rounded-full whitespace-nowrap">
+                You are here
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2 mb-3">
+              <span className="text-[22px] font-bold text-accent tracking-[-0.02em]">€990 – €4,990</span>
+              <span className="text-[11px] text-text3">/ year</span>
+            </div>
+            <p className="text-[12px] text-text2 leading-[1.5]">
+              Global AIS, forward curves, floating storage detector, contango arbitrage, chokepoint flow,
+              OPEC+ compliance, EIA + CFTC, crude differentials, Russia & dark fleet tracker.
+            </p>
+            <div className="text-[11px] text-text3 mt-3 pt-3 border-t border-border">
+              <span className="font-semibold text-text2">Access:</span> Self-serve, instant
+            </div>
+          </div>
+
+          {/* Competitors */}
+          {competitors.map((c) => (
+            <div key={c.name} className="bg-white border border-border rounded-[12px] p-5">
+              <div className="text-[15px] font-bold text-text mb-2">{c.name}</div>
+              <div className="flex items-baseline gap-2 mb-3">
+                <span className="text-[17px] font-bold text-text2 tracking-[-0.02em]">{c.price}</span>
+                <span className="text-[11px] text-text3">{c.period}</span>
+              </div>
+              <p className="text-[12px] text-text3 leading-[1.5]">{c.notes}</p>
+              <div className="text-[11px] text-text3 mt-3 pt-3 border-t border-border">
+                <span className="font-semibold text-text2">Access:</span> {c.access}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ─── Desktop layout: table ─────────────────── */}
+        <div className="hidden md:block bg-white border border-border rounded-[14px] overflow-hidden">
           {/* Header row */}
-          <div className="grid grid-cols-[1.4fr_1fr_1.6fr] md:grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-4 border-b border-border bg-bg">
+          <div className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-4 border-b border-border bg-bg">
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Provider</div>
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Annual price</div>
-            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] hidden md:block">What they give you</div>
+            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">What they give you</div>
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Access</div>
           </div>
           {/* InsideOil highlighted row */}
-          <div className="grid grid-cols-[1.4fr_1fr_1.6fr] md:grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border bg-accent-soft/40">
+          <div className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border bg-accent-soft/40">
             <div>
-              <div className="text-[14px] font-bold text-text flex items-center gap-2">
+              <div className="text-[14px] font-bold text-text flex items-center gap-2 flex-wrap">
                 InsideOil
                 <span className="text-[9px] font-bold text-accent bg-accent-soft px-1.5 py-[1px] rounded-full">You are here</span>
               </div>
@@ -210,7 +253,7 @@ function CompetitorSection() {
               <div className="text-[14px] font-bold text-accent">€990 – €4,990</div>
               <div className="text-[10px] text-text3">/ year</div>
             </div>
-            <div className="text-[12px] text-text2 hidden md:block leading-[1.4]">
+            <div className="text-[12px] text-text2 leading-[1.4]">
               Global AIS, forward curves, floating storage detector, contango arbitrage, chokepoint flow,
               OPEC+ compliance, EIA + CFTC, crude differentials, Russia & dark fleet tracker.
             </div>
@@ -220,7 +263,7 @@ function CompetitorSection() {
           {competitors.map((c) => (
             <div
               key={c.name}
-              className="grid grid-cols-[1.4fr_1fr_1.6fr] md:grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border last:border-b-0"
+              className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border last:border-b-0"
             >
               <div>
                 <div className="text-[13px] font-semibold text-text">{c.name}</div>
@@ -229,17 +272,17 @@ function CompetitorSection() {
                 <div className="text-[13px] font-semibold text-text2">{c.price}</div>
                 <div className="text-[10px] text-text3">{c.period}</div>
               </div>
-              <div className="text-[11.5px] text-text3 hidden md:block leading-[1.4]">{c.notes}</div>
+              <div className="text-[11.5px] text-text3 leading-[1.4]">{c.notes}</div>
               <div className="text-[11px] text-text3">{c.access}</div>
             </div>
           ))}
         </div>
 
         <FadeIn delay={0.15}>
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="bg-white border border-border rounded-[12px] p-6">
+          <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+            <div className="bg-white border border-border rounded-[12px] p-5 sm:p-6">
               <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">10× cheaper</div>
-              <div className="text-[22px] font-bold tracking-[-0.03em] leading-tight">
+              <div className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] leading-tight">
                 Trader annual vs Bloomberg Terminal
               </div>
               <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
@@ -247,9 +290,9 @@ function CompetitorSection() {
                 cover the same categories.
               </p>
             </div>
-            <div className="bg-white border border-border rounded-[12px] p-6">
+            <div className="bg-white border border-border rounded-[12px] p-5 sm:p-6">
               <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">25× cheaper</div>
-              <div className="text-[22px] font-bold tracking-[-0.03em] leading-tight">
+              <div className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] leading-tight">
                 Institutional vs Kpler entry tier
               </div>
               <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
@@ -257,9 +300,9 @@ function CompetitorSection() {
                 you gain self-serve signup and no six-month procurement.
               </p>
             </div>
-            <div className="bg-white border border-border rounded-[12px] p-6">
+            <div className="bg-white border border-border rounded-[12px] p-5 sm:p-6">
               <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">Self-serve</div>
-              <div className="text-[22px] font-bold tracking-[-0.03em] leading-tight">
+              <div className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] leading-tight">
                 Instant signup, cancel anytime
               </div>
               <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
@@ -271,7 +314,7 @@ function CompetitorSection() {
         </FadeIn>
 
         <FadeIn delay={0.25}>
-          <div className="mt-10 px-6 py-5 bg-white border border-border rounded-[12px]">
+          <div className="mt-8 sm:mt-10 px-5 sm:px-6 py-5 bg-white border border-border rounded-[12px]">
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">Honest disclosure</div>
             <p className="text-[12px] text-text2 leading-[1.6]">
               InsideOil uses free public data feeds (AISStream terrestrial AIS, EIA, CFTC, Yahoo,
@@ -293,18 +336,19 @@ function PricingSection() {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <section id="pricing" className="py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-white">
+    <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-white">
       <div className="max-w-[1000px] mx-auto">
         <FadeIn>
-          <div className="text-center mb-10">
-            <h2 className="text-[36px] font-bold tracking-[-0.035em]">Simple pricing</h2>
-            <p className="text-[15px] text-text2 mt-3">Choose your plan. Cancel anytime.</p>
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.035em]">Simple pricing</h2>
+            <p className="text-[13px] sm:text-[15px] text-text2 mt-3">Choose your plan. Cancel anytime.</p>
             {/* Toggle */}
-            <div className="flex items-center justify-center gap-3 mt-6">
+            <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
               <span className={`text-[13px] font-medium ${!annual ? "text-text" : "text-text3"}`}>Monthly</span>
               <button
                 onClick={() => setAnnual(!annual)}
                 className={`relative w-12 h-6 rounded-full cursor-pointer border-none transition-colors ${annual ? "bg-text" : "bg-border2"}`}
+                aria-label="Toggle annual pricing"
               >
                 <motion.div
                   animate={{ x: annual ? 24 : 2 }}
@@ -318,7 +362,7 @@ function PricingSection() {
             </div>
           </div>
         </FadeIn>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-border rounded-[14px] overflow-hidden">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-[1px] md:bg-border rounded-[14px] md:overflow-hidden">
           {pricing.map((p, i) => {
             const plan = annual ? p.annual : p.monthly;
             const period = annual ? "/year" : "/mo";
@@ -326,29 +370,43 @@ function PricingSection() {
               <FadeIn key={p.name} delay={i * 0.1}>
                 <motion.div
                   whileHover={p.highlight ? { scale: 1.02 } : {}}
-                  className={`bg-white p-7 h-full flex flex-col ${p.highlight ? "bg-bg" : ""}`}
+                  className={`bg-white p-6 sm:p-7 h-full flex flex-col border border-border md:border-0 rounded-[12px] md:rounded-none ${
+                    p.highlight ? "bg-bg ring-2 ring-accent md:ring-0" : ""
+                  }`}
                 >
                   <div className="h-[18px] flex items-end">
                     {p.highlight && <div className="text-[9px] font-bold text-accent uppercase tracking-[0.1em]">Most popular</div>}
                   </div>
                   <h3 className="text-[20px] font-bold mt-2">{p.name}</h3>
-                  <div className="mt-3 mb-1">
-                    <span className="text-[40px] font-bold tracking-[-0.04em] leading-none">{p.currency}{plan.price}</span>
+                  <div className="mt-3 mb-1 flex items-baseline flex-wrap">
+                    <span className="text-[36px] sm:text-[40px] font-bold tracking-[-0.04em] leading-none">
+                      {p.currency}{plan.price}
+                    </span>
                     <span className="text-[14px] text-text3 ml-0.5">{period}</span>
                   </div>
                   {annual && "save" in plan && (
-                    <div className="text-[11px] text-accent font-semibold mb-2">Save {p.currency}{(plan as { save: string }).save}/year</div>
+                    <div className="text-[11px] text-accent font-semibold mb-2">
+                      Save {p.currency}{(plan as { save: string }).save}/year
+                    </div>
                   )}
                   <p className="text-[12px] text-text3 mb-5">{p.desc}</p>
                   <ul className="flex flex-col gap-2.5 mb-7 flex-1">
                     {p.features.map((f) => (
-                      <li key={f} className="text-[12.5px] text-text2 flex items-start gap-2.5">
-                        <span className="text-text3 text-[10px] mt-0.5">-</span>{f}
+                      <li key={f} className="text-[12.5px] text-text2 flex items-start gap-2.5 leading-[1.45]">
+                        <span className="text-text3 text-[10px] mt-0.5 shrink-0">-</span>
+                        <span>{f}</span>
                       </li>
                     ))}
                   </ul>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <a href={`/api/checkout?plan=${plan.id}`} className={`block text-center py-3 rounded-[7px] text-[13px] font-semibold no-underline transition-all ${p.highlight ? "bg-text text-white hover:shadow-[0_4px_20px_rgba(0,0,0,.12)]" : "bg-bg text-text hover:bg-bg2 border border-border"}`}>
+                    <a
+                      href={`/api/checkout?plan=${plan.id}`}
+                      className={`block text-center py-3 rounded-[7px] text-[13px] font-semibold no-underline transition-all ${
+                        p.highlight
+                          ? "bg-text text-white hover:shadow-[0_4px_20px_rgba(0,0,0,.12)]"
+                          : "bg-bg text-text hover:bg-bg2 border border-border"
+                      }`}
+                    >
                       {p.cta}
                     </a>
                   </motion.div>
@@ -392,7 +450,7 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* Hero */}
-      <section className="relative pt-[160px] pb-24 px-4 sm:px-6 md:px-8 overflow-hidden">
+      <section className="relative pt-[110px] sm:pt-[140px] md:pt-[160px] pb-16 sm:pb-24 px-4 sm:px-6 md:px-8 overflow-hidden">
         {/* Video background */}
         <div className="absolute inset-0 z-0">
           <video
@@ -423,7 +481,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="text-[56px] sm:text-[68px] font-bold tracking-[-0.045em] leading-[1.05] text-white"
+            className="text-[36px] sm:text-[52px] md:text-[68px] font-bold tracking-[-0.04em] leading-[1.08] text-white"
           >
             The crude oil<br />
             <span className="text-white/50">trading terminal</span>
@@ -433,7 +491,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-[18px] text-white/70 leading-[1.6] max-w-[520px] mx-auto mt-6"
+            className="text-[14px] sm:text-[17px] md:text-[18px] text-white/70 leading-[1.6] max-w-[520px] mx-auto mt-5 sm:mt-6 px-2"
           >
             Real-time vessel tracking, algorithmic signals, crack spread analysis, and trade proposals — built entirely on free data sources.
           </motion.p>
@@ -442,15 +500,21 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.7 }}
-            className="flex items-center justify-center gap-3 mt-8"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7 sm:mt-8 px-4"
           >
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-              <Link href="/login" className="inline-block px-7 py-3.5 rounded-[7px] bg-text text-white text-[14px] font-semibold no-underline hover:shadow-[0_4px_24px_rgba(0,0,0,.2)] transition-shadow">
-                Start for free
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
+              <Link
+                href="/login"
+                className="block text-center w-full sm:w-auto px-7 py-3.5 rounded-[7px] bg-text text-white text-[14px] font-semibold no-underline hover:shadow-[0_4px_24px_rgba(0,0,0,.2)] transition-shadow"
+              >
+                Sign in
               </Link>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-              <a href="#features" className="inline-block px-7 py-3.5 rounded-[7px] border border-white/20 bg-white/10 backdrop-blur-sm text-white text-[14px] font-semibold no-underline hover:bg-white/20 transition-colors">
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
+              <a
+                href="#features"
+                className="block text-center w-full sm:w-auto px-7 py-3.5 rounded-[7px] border border-white/20 bg-white/10 backdrop-blur-sm text-white text-[14px] font-semibold no-underline hover:bg-white/20 transition-colors"
+              >
                 How it works
               </a>
             </motion.div>
@@ -512,20 +576,20 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-24 px-4 sm:px-6 md:px-8">
+      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 md:px-8">
         <div className="max-w-[1100px] mx-auto">
           <FadeIn>
-            <div className="max-w-[500px] mb-14">
-              <h2 className="text-[36px] font-bold tracking-[-0.035em] leading-[1.1]">Everything a crude oil trader needs</h2>
-              <p className="text-[15px] text-text2 leading-[1.6] mt-4">From vessel tracking to trade execution — 8 modules that cover the entire decision chain.</p>
+            <div className="max-w-[500px] mb-10 sm:mb-14">
+              <h2 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.035em] leading-[1.15]">Everything a crude oil trader needs</h2>
+              <p className="text-[13px] sm:text-[15px] text-text2 leading-[1.6] mt-4">From vessel tracking to trade execution — 8 modules that cover the entire decision chain.</p>
             </div>
           </FadeIn>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[1px] bg-border rounded-[14px] overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-[1px] sm:bg-border rounded-[14px] sm:overflow-hidden">
             {features.map((f, i) => (
               <FadeIn key={f.title} delay={i * 0.08}>
                 <motion.div
                   whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
-                  className="bg-white p-6 h-full cursor-default"
+                  className="bg-white p-5 sm:p-6 h-full cursor-default border border-border sm:border-0 rounded-[12px] sm:rounded-none"
                 >
                   <div className="text-[9px] font-bold text-accent uppercase tracking-[0.1em] mb-3">{f.tag}</div>
                   <h3 className="text-[15px] font-semibold mb-2 leading-[1.3]">{f.title}</h3>
@@ -538,7 +602,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="relative py-24 px-4 sm:px-6 md:px-8 border-y border-border overflow-hidden">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 md:px-8 border-y border-border overflow-hidden">
         {/* Video background */}
         <div className="absolute inset-0 z-0">
           <video autoPlay muted loop playsInline className="w-full h-full object-cover" style={{ filter: "brightness(0.12)" }}>
@@ -548,7 +612,7 @@ export default function LandingPage() {
         </div>
         <div className="relative z-10 max-w-[800px] mx-auto">
           <FadeIn>
-            <h2 className="text-[36px] font-bold tracking-[-0.035em] text-center mb-14 text-white">From data to decision in 3 steps</h2>
+            <h2 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.035em] text-center mb-10 sm:mb-14 text-white leading-[1.15]">From data to decision in 3 steps</h2>
           </FadeIn>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[

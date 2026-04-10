@@ -185,9 +185,9 @@ export default function SignalsPage() {
     <AppShell>
       <PageHelp {...SIGNALS_HELP} />
       <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
-        <div className="mb-6">
-          <h1 className="text-[30px] font-bold tracking-[-0.035em]">Institutional Signals</h1>
-          <p className="text-sm text-text3 mt-1">
+        <div className="mb-5 sm:mb-6">
+          <h1 className="text-[24px] sm:text-[30px] font-bold tracking-[-0.035em]">Institutional Signals</h1>
+          <p className="text-[12px] sm:text-sm text-text3 mt-1">
             Floating storage · Contango arbitrage · OPEC+ compliance · Chokepoint flow · Crack spread
           </p>
         </div>
@@ -362,7 +362,7 @@ function ArbBlock({ report }: { report: ArbReport }) {
       </div>
       <div className="text-[12px] text-text2 mb-3 leading-[1.4]">{report.recommendation}</div>
       {report.tenors.length > 0 && (
-        <div className="overflow-x-auto -mx-6 px-6">
+        <div className="scroll-x -mx-6 px-6">
           <table className="w-full text-[11px]">
             <thead>
               <tr className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em]">
@@ -415,7 +415,7 @@ function FloatingStorageBlock({ storage }: { storage: StorageReport }) {
           No tanker matches the floating-storage signature in the last 7 days.
         </div>
       ) : (
-        <div className="overflow-x-auto -mx-6 px-6 max-h-[360px] overflow-y-auto">
+        <div className="scroll-x -mx-6 px-6 max-h-[360px] overflow-y-auto">
           <table className="w-full text-[11px]">
             <thead className="sticky top-0 bg-bg3">
               <tr className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em]">
@@ -466,7 +466,7 @@ function OpecBlock({ opec }: { opec: OpecReport }) {
           ))}
         </div>
       )}
-      <div className="overflow-x-auto -mx-6 px-6">
+      <div className="scroll-x -mx-6 px-6">
         <table className="w-full text-[11px]">
           <thead>
             <tr className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em]">
@@ -512,7 +512,7 @@ function ChokepointsBlock({ cp }: { cp: ChokepointFlow }) {
           ))}
         </div>
       )}
-      <div className="overflow-x-auto -mx-6 px-6">
+      <div className="scroll-x -mx-6 px-6">
         <table className="w-full text-[11px]">
           <thead>
             <tr className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em]">

@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/session-provider";
 import { CookieBanner } from "@/components/cookie-banner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#fafafa",
+};
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -84,7 +92,7 @@ export default function RootLayout({
               offers: [
                 { "@type": "Offer", price: "19", priceCurrency: "EUR", name: "Junior Trader" },
                 { "@type": "Offer", price: "99", priceCurrency: "EUR", name: "Trader" },
-                { "@type": "Offer", price: "499", priceCurrency: "EUR", name: "Professional" },
+                { "@type": "Offer", price: "499", priceCurrency: "EUR", name: "Institutional" },
               ],
             }),
           }}

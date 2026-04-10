@@ -114,7 +114,7 @@ export default function TradingDesk() {
       {/* Arbitrage Scanner */}
       <Card title="Arbitrage Scanner" badge={{ text: arb ? `${arb.profitableRoutes}/${arb.totalRoutes} profitable` : "..." }} className="mb-[22px]">
         {arb ? (
-          <div className="overflow-x-auto">
+          <div className="scroll-x">
             <table className="w-full border-collapse">
               <thead><tr>
                 {["Route", "Discount", "Freight", "Net Margin", "Cargo P&L", ""].map((h) => (

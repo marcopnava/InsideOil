@@ -41,7 +41,7 @@ export default function ShipmentsPage() {
       </div>
 
       <Card title="Vessels" badge={{ text: String(sea?.vessels.length ?? 0) }}>
-        <div className="overflow-x-auto">
+        <div className="scroll-x">
           <table className="w-full border-collapse">
             <thead><tr>
               {["IMO", "Vessel", "Route", "Status", "Cargo", "Departure", "ETA", "Capacity"].map(h => (
@@ -70,7 +70,7 @@ export default function ShipmentsPage() {
       </Card>
 
       <Card title="Cargo Aircraft in Flight" badge={{ text: String(air?.stats.cargo ?? 0), variant: "dark" as const }} className="mt-3.5">
-        <div className="overflow-x-auto">
+        <div className="scroll-x">
           <table className="w-full border-collapse">
             <thead><tr>
               {["Callsign", "ICAO", "Country", "Altitude", "Speed"].map(h => (
