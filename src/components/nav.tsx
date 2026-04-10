@@ -13,8 +13,6 @@ const clientLinks = [
   { href: "/tracking", label: "Live Map" },
   { href: "/trade", label: "Trade" },
   { href: "/signals", label: "Signals" },
-  { href: "/differentials", label: "Diff" },
-  { href: "/russia", label: "Russia" },
   { href: "/alerts", label: "Alerts" },
   { href: "/ports", label: "Ports" },
   { href: "/weather", label: "Weather" },
