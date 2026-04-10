@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { stripe, PLANS } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
@@ -45,17 +48,35 @@ export async function GET(req: NextRequest) {
       priceId = price.id;
     }
 
-    const session = await stripe.checkout.sessions.create({
+    // If the user is logged in, link the checkout to their account so the
+    // webhook can upgrade them directly.
+    const session = await getServerSession(authOptions);
+    let customerEmail: string | undefined;
+    let stripeCustomerId: string | undefined;
+    let userId: string | undefined;
+    if (session?.user) {
+      userId = (session.user as { id: string }).id;
+      const dbUser = await db.user.findUnique({
+        where: { id: userId },
+        select: { email: true, stripeCustomerId: true },
+      });
+      customerEmail = dbUser?.email ?? undefined;
+      stripeCustomerId = dbUser?.stripeCustomerId ?? undefined;
+    }
+
+    const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${req.nextUrl.origin}/welcome?plan=${plan}`,
-      cancel_url: `${req.nextUrl.origin}/#pricing`,
+      success_url: `${req.nextUrl.origin}/welcome?plan=${plan}&upgraded=1`,
+      cancel_url: `${req.nextUrl.origin}/upgrade`,
       allow_promotion_codes: true,
-      metadata: { plan },
+      metadata: { plan, userId: userId ?? "" },
+      subscription_data: { metadata: { plan, userId: userId ?? "" } },
+      ...(stripeCustomerId ? { customer: stripeCustomerId } : customerEmail ? { customer_email: customerEmail } : {}),
     });
 
-    if (session.url) {
-      return NextResponse.redirect(session.url);
+    if (checkoutSession.url) {
+      return NextResponse.redirect(checkoutSession.url);
     }
 
     return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });

@@ -1,11 +1,17 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  hasTierAccess,
+  requiredTierForPath,
+  requiredTierForApi,
+  type Tier,
+} from "./lib/tiers";
 
 // ─── In-memory rate limiter (per-IP, resets every window) ───
 const rateMap = new Map<string, { count: number; reset: number }>();
 const RATE_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_API = 60;      // 60 requests per minute for API
-const RATE_LIMIT_AUTH = 10;     // 10 attempts per minute for auth
+const RATE_LIMIT_API = 60; // 60 requests per minute for API
+const RATE_LIMIT_AUTH = 10; // 10 attempts per minute for auth (reserved)
 
 function isRateLimited(key: string, limit: number): boolean {
   const now = Date.now();
@@ -19,6 +25,8 @@ function isRateLimited(key: string, limit: number): boolean {
   entry.count++;
   return entry.count > limit;
 }
+// silence unused const warning for RATE_LIMIT_AUTH until used
+void RATE_LIMIT_AUTH;
 
 // Cleanup stale entries every 5 minutes
 setInterval(() => {
@@ -28,12 +36,10 @@ setInterval(() => {
   }
 }, 300_000);
 
-const protectedPaths = [
-  "/dashboard", "/briefing", "/tracking", "/trade", "/watchlist",
-  "/ports", "/weather", "/news", "/shipments", "/forecast", "/analytics", "/tools",
-];
-
 const adminPaths = ["/admin"];
+
+/** Paths always accessible to any authenticated user (no tier needed). */
+const openAuthPaths = ["/education", "/settings", "/upgrade"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -62,6 +68,28 @@ export async function middleware(req: NextRequest) {
       }
     }
 
+    // Cron endpoints authenticate via ?secret=; skip JWT gating here.
+    const required = requiredTierForApi(pathname);
+    const isCron = pathname.startsWith("/api/cron/");
+    if (required && !isCron) {
+      const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+      if (!token) {
+        return NextResponse.json({ success: false, error: "unauthorized" }, { status: 401 });
+      }
+      const userTier = (token.subscriptionTier as Tier | undefined) ?? "free";
+      if (!hasTierAccess(userTier, required)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "upgrade_required",
+            requiredTier: required,
+            currentTier: userTier,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     // Add security headers and pass through
     const response = NextResponse.next();
     response.headers.set("X-Content-Type-Options", "nosniff");
@@ -69,22 +97,35 @@ export async function middleware(req: NextRequest) {
   }
 
   // ─── Page routes ───
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-  // Protected routes — require login
-  const isProtected = protectedPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
-  if (isProtected && !token) {
-    return NextResponse.redirect(new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, req.url));
-  }
-
-  // Admin routes — require admin role
+  const required = requiredTierForPath(pathname);
   const isAdmin = adminPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
-  if (isAdmin) {
+  const isOpenAuth = openAuthPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  const needsAuth = required !== null || isAdmin || isOpenAuth;
+
+  if (needsAuth) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
     if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(
+        new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, req.url)
+      );
     }
-    if (token.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+
+    // Admin routes — require admin role
+    if (isAdmin) {
+      if (token.role !== "ADMIN") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    } else if (required) {
+      const userTier = (token.subscriptionTier as Tier | undefined) ?? "free";
+      if (!hasTierAccess(userTier, required)) {
+        // redirect to /upgrade with context about what was blocked
+        const url = req.nextUrl.clone();
+        url.pathname = "/upgrade";
+        url.searchParams.set("required", required);
+        url.searchParams.set("from", pathname);
+        return NextResponse.redirect(url);
+      }
     }
   }
 
@@ -102,19 +143,31 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard", "/dashboard/:path*",
-    "/briefing", "/briefing/:path*",
-    "/tracking", "/tracking/:path*",
-    "/trade", "/trade/:path*",
-    "/watchlist", "/watchlist/:path*",
-    "/ports", "/ports/:path*",
-    "/weather", "/weather/:path*",
-    "/news", "/news/:path*",
-    "/shipments", "/shipments/:path*",
-    "/forecast", "/forecast/:path*",
-    "/analytics", "/analytics/:path*",
-    "/tools", "/tools/:path*",
-    "/admin", "/admin/:path*",
+    // App pages
+    "/dashboard/:path*",
+    "/briefing/:path*",
+    "/tracking/:path*",
+    "/trade/:path*",
+    "/signals/:path*",
+    "/differentials/:path*",
+    "/russia/:path*",
+    "/vessels/:path*",
+    "/portfolio/:path*",
+    "/calendar/:path*",
+    "/watchlist/:path*",
+    "/ports/:path*",
+    "/weather/:path*",
+    "/news/:path*",
+    "/shipments/:path*",
+    "/forecast/:path*",
+    "/analytics/:path*",
+    "/tools/:path*",
+    "/alerts/:path*",
+    "/education/:path*",
+    "/settings/:path*",
+    "/upgrade/:path*",
+    "/admin/:path*",
+    // APIs
     "/api/:path*",
   ],
 };
