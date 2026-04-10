@@ -262,6 +262,28 @@ model PriceCurve {
   @@map("price_curves")
 }
 
+// ─── User-defined alerts ────────────────────────────────────
+
+model UserAlert {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  metric        String   // BRENT_PRICE, WTI_PRICE, BDTI, CRACK_321, HORMUZ_TRANSIT, OPEC_COMPLIANCE, etc.
+  comparator    String   // gt, lt, change_pct
+  threshold     Float
+  windowMinutes Int      @default(60)
+  channel       String   @default("email") // email, push (future)
+  enabled       Boolean  @default(true)
+  lastTriggered DateTime?
+  lastValue     Float?
+  triggerCount  Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([enabled])
+  @@map("user_alerts")
+}
+
 // ─── Signal snapshots (institutional signals) ───────────────
 
 model SignalSnapshot {
