@@ -12,6 +12,7 @@ const clientLinks = [
   { href: "/briefing", label: "Briefing" },
   { href: "/tracking", label: "Live Map" },
   { href: "/trade", label: "Trade" },
+  { href: "/signals", label: "Signals" },
   { href: "/ports", label: "Ports" },
   { href: "/weather", label: "Weather" },
   { href: "/news", label: "News" },

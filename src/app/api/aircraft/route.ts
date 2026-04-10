@@ -27,11 +27,13 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Default: stats + cargo list (no full aircraft list)
+    // Default: stats + full cargo list
+    const limitParam = req.nextUrl.searchParams.get("limit");
+    const limit = limitParam ? Math.min(Math.max(1, parseInt(limitParam, 10)), 1000) : cargo.length;
     return NextResponse.json({
       success: true,
       data: {
-        cargo: cargo.slice(0, 30),
+        cargo: cargo.slice(0, limit),
         stats: {
           total: aircraft.length,
           cargo: cargo.length,

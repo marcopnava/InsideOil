@@ -1,20 +1,9 @@
 import { db } from "@/lib/db";
+import { isCargoCallsign } from "@/lib/cargo-airlines";
 
 const OPENSKY_URL = "https://opensky-network.org/api/states/all";
-
-// Cargo airline ICAO callsign prefixes
-const CARGO_PREFIXES = [
-  "FDX", "UPS", "GTI", "CLX", "CKS", "BOX", "ABW", "MPH", "QTR", "UAE",
-  "MAS", "ANA", "KAL", "CPA", "SIA", "DLH", "BAW", "AFR", "ETH", "THY",
-  "CCA", "CSN", "CES", "PAC", "GEC", "ABX", "ATN", "KFS", "POC", "SRR",
-  "TAY", "TNO", "NPT", "GSS", "SQC", "NCR", "ICE", "HVN",
-];
-
-function isCargoCallsign(callsign: string | null): boolean {
-  if (!callsign) return false;
-  const cs = callsign.trim().toUpperCase();
-  return CARGO_PREFIXES.some((p) => cs.startsWith(p));
-}
+const TOKEN_URL =
+  "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token";
 
 export interface Aircraft {
   icao24: string;
@@ -22,30 +11,76 @@ export interface Aircraft {
   country: string;
   lat: number;
   lng: number;
-  altitude: number | null; // feet
-  speed: number | null; // knots
+  altitude: number | null;
+  speed: number | null;
   heading: number | null;
   verticalRate: number | null;
   onGround: boolean;
   isCargo: boolean;
 }
 
-// In-memory cache
 let cachedAircraft: Aircraft[] = [];
 let lastFetch = 0;
-const CACHE_TTL = 12_000; // 12s
+// Default cache TTL = 5 min. Aligned with the Vercel cron schedule (every 5 min)
+// to keep credit usage at ~288 calls/day × 4 credits = ~1150/day, well under 4000.
+const CACHE_TTL = 5 * 60_000;
 
-export async function fetchAircraft(): Promise<Aircraft[]> {
+// ─── OAuth2 client credentials token cache ──────────────
+let tokenCache: { token: string; expiresAt: number } | null = null;
+
+async function getAccessToken(): Promise<string | null> {
+  const id = process.env.OPENSKY_CLIENT_ID;
+  const secret = process.env.OPENSKY_CLIENT_SECRET;
+  if (!id || !secret) return null;
+
+  if (tokenCache && Date.now() < tokenCache.expiresAt - 30_000) {
+    return tokenCache.token;
+  }
+
+  try {
+    const body = new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: id,
+      client_secret: secret,
+    });
+    const res = await fetch(TOKEN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) {
+      console.warn("[OpenSky] token endpoint", res.status);
+      return null;
+    }
+    const j = (await res.json()) as { access_token: string; expires_in: number };
+    tokenCache = {
+      token: j.access_token,
+      expiresAt: Date.now() + j.expires_in * 1000,
+    };
+    return tokenCache.token;
+  } catch (e) {
+    console.warn("[OpenSky] token error:", e);
+    return null;
+  }
+}
+
+export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraft[]> {
   const now = Date.now();
-  if (cachedAircraft.length > 0 && now - lastFetch < CACHE_TTL) {
+  if (!opts?.force && cachedAircraft.length > 0 && now - lastFetch < CACHE_TTL) {
     return cachedAircraft;
   }
 
   const start = Date.now();
   try {
+    const headers: Record<string, string> = { Accept: "application/json" };
+    const token = await getAccessToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
     const res = await fetch(OPENSKY_URL, {
-      next: { revalidate: 10 },
-      signal: AbortSignal.timeout(15_000),
+      headers,
+      cache: "no-store",
+      signal: AbortSignal.timeout(20_000),
     });
     if (!res.ok) throw new Error(`OpenSky ${res.status}`);
     const data = await res.json();
@@ -53,12 +88,11 @@ export async function fetchAircraft(): Promise<Aircraft[]> {
     const aircraft: Aircraft[] = [];
     if (data.states) {
       for (const s of data.states) {
-        // Skip if no position or on ground
         if (s[5] === null || s[6] === null) continue;
-
+        const callsign = s[1]?.trim() || null;
         aircraft.push({
           icao24: s[0],
-          callsign: s[1]?.trim() || null,
+          callsign,
           country: s[2] || "Unknown",
           lng: s[5],
           lat: s[6],
@@ -67,7 +101,7 @@ export async function fetchAircraft(): Promise<Aircraft[]> {
           heading: s[10],
           verticalRate: s[11],
           onGround: s[8] === true,
-          isCargo: isCargoCallsign(s[1]),
+          isCargo: isCargoCallsign(callsign),
         });
       }
     }
@@ -75,19 +109,11 @@ export async function fetchAircraft(): Promise<Aircraft[]> {
     cachedAircraft = aircraft;
     lastFetch = now;
 
-    // Log fetch to DB (non-blocking)
     const duration = Date.now() - start;
     db.fetchLog
-      .create({
-        data: {
-          source: "opensky",
-          aircraftCount: aircraft.length,
-          durationMs: duration,
-        },
-      })
-      .catch((e) => console.warn("[OpenSky] DB write failed:", e));
+      .create({ data: { source: "opensky", aircraftCount: aircraft.length, durationMs: duration } })
+      .catch(() => {});
 
-    // Store cargo snapshots (non-blocking, latest batch only)
     const cargoOnly = aircraft.filter((a) => a.isCargo);
     if (cargoOnly.length > 0) {
       db.aircraftSnapshot
@@ -106,27 +132,46 @@ export async function fetchAircraft(): Promise<Aircraft[]> {
             isCargo: true,
           })),
         })
-        .catch((e) => console.warn("[OpenSky] DB write failed:", e));
+        .catch(() => {});
     }
 
     return aircraft;
   } catch (e) {
     console.error("[OpenSky] Fetch failed:", e);
-    // Return cache if available, otherwise empty
+    db.fetchLog
+      .create({ data: { source: "opensky", error: String(e), durationMs: Date.now() - start } })
+      .catch(() => {});
+
     if (cachedAircraft.length > 0) return cachedAircraft;
 
-    // Log error
-    db.fetchLog
-      .create({
-        data: {
-          source: "opensky",
-          error: String(e),
-          durationMs: Date.now() - start,
-        },
-      })
-      .catch((e) => console.warn("[OpenSky] DB write failed:", e));
-
-    return [];
+    try {
+      const since = new Date(Date.now() - 30 * 60_000);
+      const rows = await db.aircraftSnapshot.findMany({
+        where: { fetchedAt: { gte: since }, isCargo: true },
+        orderBy: { fetchedAt: "desc" },
+        take: 500,
+      });
+      const seen = new Map<string, Aircraft>();
+      for (const r of rows) {
+        if (seen.has(r.icao24)) continue;
+        seen.set(r.icao24, {
+          icao24: r.icao24,
+          callsign: r.callsign,
+          country: r.country ?? "Unknown",
+          lat: r.lat,
+          lng: r.lng,
+          altitude: r.altitude,
+          speed: r.speed,
+          heading: r.heading,
+          verticalRate: r.verticalRate,
+          onGround: r.onGround,
+          isCargo: true,
+        });
+      }
+      return Array.from(seen.values());
+    } catch {
+      return [];
+    }
   }
 }
 

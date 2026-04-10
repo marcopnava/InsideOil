@@ -1,10 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchDigitrafficVessels } from "@/lib/digitraffic";
+import { getLiveAisVessels, getAisStats } from "@/lib/ais-vessels";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    // Prefer global AISStream feed (DB-backed). Fall back to Digitraffic Baltic feed
+    // only if the AIS worker hasn't populated the DB yet.
+    const globalStats = await getAisStats().catch(() => null);
+    const useGlobal = globalStats != null && !globalStats.stale;
+
+    if (useGlobal) {
+      const mode = req.nextUrl.searchParams.get("mode");
+      if (mode === "map") {
+        const live = await getLiveAisVessels({ limit: 4000 });
+        return NextResponse.json({
+          success: true,
+          data: {
+            vessels: live.map((v) => [
+              v.lat, v.lng, v.heading ?? v.course ?? 0, v.speed ?? 0,
+              v.shipType ?? 0, v.mmsi, v.name ?? "", v.destination ?? "",
+            ]),
+            counts: { total: globalStats!.total, moving: globalStats!.moving, shown: live.length },
+            source: "AISStream global",
+          },
+        });
+      }
+      return NextResponse.json({
+        success: true,
+        data: {
+          stats: {
+            total: globalStats!.total,
+            cargo: globalStats!.cargo,
+            tankers: globalStats!.tankers,
+            moving: globalStats!.moving,
+            anchored: globalStats!.anchored,
+            avgSpeed: 0,
+          },
+          source: "AISStream.io (global, free)",
+          coverage: "Global",
+        },
+      });
+    }
+
     const vessels = await fetchDigitrafficVessels();
 
     const mode = req.nextUrl.searchParams.get("mode");

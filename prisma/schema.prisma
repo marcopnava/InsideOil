@@ -198,6 +198,84 @@ model Alert {
   @@map("alerts")
 }
 
+// ─── Global AIS (AISStream / DB-backed) ─────────────────────
+
+model AisVessel {
+  mmsi        Int      @id
+  imo         Int?
+  name        String?
+  callSign    String?
+  shipType    Int?
+  shipTypeName String?
+  destination String?
+  eta         String?
+  draught     Float?
+  lat         Float
+  lng         Float
+  speed       Float?   // knots, sog
+  course      Float?
+  heading     Float?
+  navStatus   Int?
+  navStatusName String?
+  lastSeen    DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  positions AisPosition[]
+
+  @@index([shipType])
+  @@index([lastSeen])
+  @@index([lat, lng])
+  @@map("ais_vessels")
+}
+
+model AisPosition {
+  id        BigInt   @id @default(autoincrement())
+  mmsi      Int
+  lat       Float
+  lng       Float
+  speed     Float?
+  course    Float?
+  heading   Float?
+  navStatus Int?
+  timestamp DateTime @default(now())
+
+  vessel AisVessel @relation(fields: [mmsi], references: [mmsi], onDelete: Cascade)
+
+  @@index([mmsi, timestamp])
+  @@index([timestamp])
+  @@map("ais_positions")
+}
+
+// ─── Forward price curve (futures chain) ────────────────────
+
+model PriceCurve {
+  id            BigInt   @id @default(autoincrement())
+  instrument    String   // BRENT, WTI, DUBAI, RBOB, HO, NG
+  contractMonth String   // YYYY-MM
+  price         Float
+  source        String   // yahoo, ice, cme, manual
+  fetchedAt     DateTime @default(now())
+
+  @@unique([instrument, contractMonth, fetchedAt])
+  @@index([instrument, contractMonth])
+  @@index([fetchedAt])
+  @@map("price_curves")
+}
+
+// ─── Signal snapshots (institutional signals) ───────────────
+
+model SignalSnapshot {
+  id          BigInt   @id @default(autoincrement())
+  type        String   // FLOATING_STORAGE, CONTANGO_ARB, CRACK_321, OPEC_COMPLIANCE, BDTI
+  payload     Json
+  score       Float?
+  sentiment   String?  // bullish, bearish, neutral
+  generatedAt DateTime @default(now())
+
+  @@index([type, generatedAt])
+  @@map("signal_snapshots")
+}
+
 // ─── System / Fetch log ─────────────────────────────────────
 
 model FetchLog {
