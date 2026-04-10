@@ -43,6 +43,20 @@ const CACHE_TTL = 5 * 60_000;
 // ─── OAuth2 client credentials token cache ──────────────
 let tokenCache: { token: string; expiresAt: number } | null = null;
 
+function describeError(e: unknown): string {
+  if (e instanceof Error) {
+    const cause = (e as Error & { cause?: unknown }).cause;
+    const causeStr =
+      cause instanceof Error
+        ? `${cause.name}: ${cause.message}`
+        : cause
+          ? String(cause)
+          : "";
+    return `${e.name}: ${e.message}${causeStr ? " · cause: " + causeStr : ""}`;
+  }
+  return String(e);
+}
+
 async function getAccessToken(): Promise<string | null> {
   const id = process.env.OPENSKY_CLIENT_ID;
   const secret = process.env.OPENSKY_CLIENT_SECRET;
@@ -60,12 +74,18 @@ async function getAccessToken(): Promise<string | null> {
     });
     const res = await fetch(TOKEN_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "InsideOil/1.0 (+https://www.insideoil.it)",
+        Accept: "application/json",
+      },
       body,
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(15_000),
     });
     if (!res.ok) {
-      console.warn("[OpenSky] token endpoint", res.status);
+      const txt = await res.text().catch(() => "");
+      lastError = `token endpoint HTTP ${res.status}: ${txt.slice(0, 200)}`;
+      console.warn("[OpenSky]", lastError);
       return null;
     }
     const j = (await res.json()) as { access_token: string; expires_in: number };
@@ -75,7 +95,8 @@ async function getAccessToken(): Promise<string | null> {
     };
     return tokenCache.token;
   } catch (e) {
-    console.warn("[OpenSky] token error:", e);
+    lastError = "token fetch: " + describeError(e);
+    console.warn("[OpenSky]", lastError);
     return null;
   }
 }
@@ -88,7 +109,10 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
 
   const start = Date.now();
   try {
-    const headers: Record<string, string> = { Accept: "application/json" };
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "User-Agent": "InsideOil/1.0 (+https://www.insideoil.it)",
+    };
     const token = await getAccessToken();
     lastFetchHadAuth = !!token;
     if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -96,7 +120,7 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
     const res = await fetch(OPENSKY_URL, {
       headers,
       cache: "no-store",
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(25_000),
     });
     if (!res.ok) throw new Error(`OpenSky HTTP ${res.status} ${res.statusText}`);
     const data = await res.json();
@@ -155,7 +179,7 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
 
     return aircraft;
   } catch (e) {
-    const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+    const msg = describeError(e);
     console.error("[OpenSky] Fetch failed:", msg);
     lastError = msg;
     db.fetchLog
