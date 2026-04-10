@@ -65,8 +65,16 @@ const pricing = [
     monthly: { price: "19", id: "junior_monthly" },
     annual: { price: "190", id: "junior_annual", save: "38" },
     currency: "€",
-    desc: "Start learning with real data",
-    features: ["Live vessel map", "Aircraft tracking", "Maritime weather", "Industry news feed", "Basic trade signals"],
+    desc: "For the retail trader getting started",
+    features: [
+      "Live Command Center (all KPI boxes)",
+      "Live global map (vessels + cargo aircraft)",
+      "Daily Briefing auto-generated every morning",
+      "News, Weather and Ports (full access)",
+      "Trade Intelligence — tanker fleet analytics",
+      "Full Education hub (22 sections + EIA playbook)",
+      "3 personal email alerts",
+    ],
     cta: "Start Junior",
     highlight: false,
   },
@@ -75,22 +83,211 @@ const pricing = [
     monthly: { price: "99", id: "trader_monthly" },
     annual: { price: "990", id: "trader_annual", save: "198" },
     currency: "€",
-    desc: "For active traders",
-    features: ["Everything in Junior", "Decision Engine", "Trade Proposals with P&L", "Crack Spread & Arbitrage", "Economic Calendar", "Backtest & Portfolio", "Custom Alert Rules"],
+    desc: "For the serious retail and semi-pro trader",
+    features: [
+      "Everything in Junior Trader",
+      "Institutional Signals real-time (Contango arbitrage, Floating storage, Chokepoint flow)",
+      "Forward curve Brent / WTI / Dubai full chain",
+      "BDTI tanker freight index + VLCC TCE",
+      "EIA Weekly Petroleum Status with decision tree",
+      "CFTC Commitments of Traders (smart money positioning)",
+      "Vessel detail pages with live route map (6h → 7d)",
+      "External vessel cross-check (MarineTraffic, VesselFinder, FleetMon)",
+      "Crude differentials (Brent-WTI, Brent-Dubai EFS, USGC→Asia arb)",
+      "Unlimited personal email alerts",
+    ],
     cta: "Start Trader",
     highlight: true,
   },
   {
-    name: "Professional",
-    monthly: { price: "499", id: "professional_monthly" },
-    annual: { price: "4,990", id: "professional_annual", save: "998" },
+    name: "Institutional",
+    monthly: { price: "499", id: "institutional_monthly" },
+    annual: { price: "4,990", id: "institutional_annual", save: "998" },
     currency: "€",
-    desc: "For trading desks",
-    features: ["Everything in Trader", "Voyage Calculator", "Dark Fleet Monitor", "Ballast Positioning", "Arbitrage Scanner", "API access", "Unlimited CSV export"],
-    cta: "Start Professional",
+    desc: "For family offices, prop desks, specialised funds",
+    features: [
+      "Everything in Trader",
+      "Russia Tanker Tracker (Baltic + Black Sea + Far East)",
+      "Dark Fleet Detector (sanctions-evasion candidates)",
+      "OPEC+ Compliance per-country scoring (AIS port-call detection)",
+      "Historical data unlimited (> 30 days)",
+      "Priority data refresh (signals every 1-2 min instead of 5)",
+      "API access (JSON) for algo trading",
+      "1-on-1 onboarding call",
+      "Priority email support",
+      "Custom daily briefing personalised to your desk",
+    ],
+    cta: "Start Institutional",
     highlight: false,
   },
 ];
+
+// Competitor comparison — "the alternative is 10-100× more expensive"
+const competitors = [
+  {
+    name: "Kpler",
+    price: "€40,000 - €120,000",
+    period: "/ year",
+    notes: "Enterprise only. Satellite AIS, cargo tracking, commodity flows. The standard in trading desks.",
+    access: "Enterprise sales, 6-12 months procurement cycle",
+  },
+  {
+    name: "Vortexa",
+    price: "€30,000 - €80,000",
+    period: "/ year",
+    notes: "AI-powered oil flow intelligence. Used by majors and hedge funds.",
+    access: "Enterprise sales",
+  },
+  {
+    name: "ClipperData",
+    price: "€20,000 - €50,000",
+    period: "/ year",
+    notes: "Tanker movements, waterborne cargo. Core tool of physical crude desks.",
+    access: "Enterprise sales",
+  },
+  {
+    name: "Bloomberg Terminal",
+    price: "€24,000",
+    period: "/ year",
+    notes: "All-in-one finance terminal, OIL<GO> section for crude. Market standard, single-seat licence.",
+    access: "Per-seat licence, credit check",
+  },
+  {
+    name: "LSEG Workspace (Refinitiv)",
+    price: "€18,000",
+    period: "/ year",
+    notes: "Ex Refinitiv Eikon. Oil pricing, news, curves, flow data for the finance professional.",
+    access: "Per-seat licence",
+  },
+  {
+    name: "S&P Platts Dimensions Pro",
+    price: "€15,000 - €40,000",
+    period: "/ year",
+    notes: "Price assessments (Dated Brent, Dubai marker), analytics, forward curves.",
+    access: "Commercial contract",
+  },
+];
+
+function CompetitorSection() {
+  return (
+    <section id="comparison" className="py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-bg">
+      <div className="max-w-[1100px] mx-auto">
+        <FadeIn>
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white mb-5">
+              <span className="text-[11px] font-semibold text-text3 uppercase tracking-[0.08em]">The alternative</span>
+            </div>
+            <h2 className="text-[36px] font-bold tracking-[-0.035em] leading-[1.1] max-w-[820px] mx-auto">
+              The institutional stack costs €18,000 to €120,000 a year.
+            </h2>
+            <p className="text-[15px] text-text2 mt-4 max-w-[680px] mx-auto leading-[1.6]">
+              Kpler, Vortexa, Bloomberg, LSEG — the data Western hedge funds and oil majors use
+              to trade crude. InsideOil Trader is <strong className="text-text">€990 a year</strong>.
+              Institutional is <strong className="text-text">€4,990</strong>. Same class of signals,
+              a fraction of the budget.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="bg-white border border-border rounded-[14px] overflow-hidden">
+          {/* Header row */}
+          <div className="grid grid-cols-[1.4fr_1fr_1.6fr] md:grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-4 border-b border-border bg-bg">
+            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Provider</div>
+            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Annual price</div>
+            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] hidden md:block">What they give you</div>
+            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Access</div>
+          </div>
+          {/* InsideOil highlighted row */}
+          <div className="grid grid-cols-[1.4fr_1fr_1.6fr] md:grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border bg-accent-soft/40">
+            <div>
+              <div className="text-[14px] font-bold text-text flex items-center gap-2">
+                InsideOil
+                <span className="text-[9px] font-bold text-accent bg-accent-soft px-1.5 py-[1px] rounded-full">You are here</span>
+              </div>
+              <div className="text-[11px] text-text2 mt-0.5">Trader / Institutional</div>
+            </div>
+            <div>
+              <div className="text-[14px] font-bold text-accent">€990 – €4,990</div>
+              <div className="text-[10px] text-text3">/ year</div>
+            </div>
+            <div className="text-[12px] text-text2 hidden md:block leading-[1.4]">
+              Global AIS, forward curves, floating storage detector, contango arbitrage, chokepoint flow,
+              OPEC+ compliance, EIA + CFTC, crude differentials, Russia & dark fleet tracker.
+            </div>
+            <div className="text-[11px] text-text2">Self-serve, instant</div>
+          </div>
+          {/* Competitors */}
+          {competitors.map((c) => (
+            <div
+              key={c.name}
+              className="grid grid-cols-[1.4fr_1fr_1.6fr] md:grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border last:border-b-0"
+            >
+              <div>
+                <div className="text-[13px] font-semibold text-text">{c.name}</div>
+              </div>
+              <div>
+                <div className="text-[13px] font-semibold text-text2">{c.price}</div>
+                <div className="text-[10px] text-text3">{c.period}</div>
+              </div>
+              <div className="text-[11.5px] text-text3 hidden md:block leading-[1.4]">{c.notes}</div>
+              <div className="text-[11px] text-text3">{c.access}</div>
+            </div>
+          ))}
+        </div>
+
+        <FadeIn delay={0.15}>
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="bg-white border border-border rounded-[12px] p-6">
+              <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">10× cheaper</div>
+              <div className="text-[22px] font-bold tracking-[-0.03em] leading-tight">
+                Trader annual vs Bloomberg Terminal
+              </div>
+              <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
+                €990/year vs €24,000/year. The overlap on oil analytics is meaningful — our signals
+                cover the same categories.
+              </p>
+            </div>
+            <div className="bg-white border border-border rounded-[12px] p-6">
+              <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">25× cheaper</div>
+              <div className="text-[22px] font-bold tracking-[-0.03em] leading-tight">
+                Institutional vs Kpler entry tier
+              </div>
+              <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
+                €4,990/year vs €120,000/year Kpler enterprise. You give up deep satellite AIS,
+                you gain self-serve signup and no six-month procurement.
+              </p>
+            </div>
+            <div className="bg-white border border-border rounded-[12px] p-6">
+              <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">Self-serve</div>
+              <div className="text-[22px] font-bold tracking-[-0.03em] leading-tight">
+                Instant signup, cancel anytime
+              </div>
+              <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
+                No sales call. No procurement. No minimum seat licence. Card at checkout, full access
+                in under 60 seconds.
+              </p>
+            </div>
+          </div>
+        </FadeIn>
+
+        <FadeIn delay={0.25}>
+          <div className="mt-10 px-6 py-5 bg-white border border-border rounded-[12px]">
+            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">Honest disclosure</div>
+            <p className="text-[12px] text-text2 leading-[1.6]">
+              InsideOil uses free public data feeds (AISStream terrestrial AIS, EIA, CFTC, Yahoo,
+              Open-Meteo, OpenSky). Kpler, Vortexa and Platts run paid satellite AIS and proprietary
+              pipelines — their Persian Gulf and West Africa coverage is more complete. Where our
+              coverage is weaker we document it openly (see our Education → Platform Limitations
+              section). For 95% of crude trading decisions our data is sufficient. If you need
+              full satellite-grade coverage and are willing to pay 10-100× more, Kpler is the
+              honest answer.
+            </p>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
 
 function PricingSection() {
   const [annual, setAnnual] = useState(false);
@@ -187,6 +384,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-4 sm:gap-6">
           <a href="#features" className="hidden sm:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Features</a>
           <a href="#pricing" className="hidden sm:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Pricing</a>
+          <a href="#comparison" className="hidden md:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Comparison</a>
           <Link href="/login" className="px-4 py-[7px] rounded-[7px] bg-text text-white text-[12px] font-semibold no-underline hover:bg-black/80 transition-colors">
             Sign in
           </Link>
@@ -439,6 +637,9 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <PricingSection />
+
+      {/* Competitor comparison — "the alternative is 10-100x more expensive" */}
+      <CompetitorSection />
 
       {/* Final CTA */}
       <section className="relative py-28 px-4 sm:px-6 md:px-8 overflow-hidden">
