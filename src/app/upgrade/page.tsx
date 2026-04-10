@@ -155,6 +155,28 @@ function UpgradeContent() {
         )}
       </div>
 
+      {/* Existing subscribers — show portal banner with proration info */}
+      {profile && profile.subscriptionTier !== "free" && (
+        <div className="mb-6 bg-bg3 border border-border rounded-[var(--radius)] p-4 sm:p-5 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex-1 min-w-[240px]">
+            <div className="text-[13px] font-semibold text-text">
+              You already have an active {TIER_LABEL[currentTier]} plan
+            </div>
+            <p className="text-[11.5px] text-text2 mt-1 leading-[1.5]">
+              Upgrade via the Stripe Billing Portal —{" "}
+              <strong className="text-text">Stripe prorates automatically</strong>: unused days on
+              your current plan are credited toward the new one. No double-charge.
+            </p>
+          </div>
+          <a
+            href="/api/portal"
+            className="px-5 py-2.5 bg-accent text-white text-[12px] font-bold rounded-[var(--radius-xs)] hover:opacity-90 no-underline whitespace-nowrap"
+          >
+            Open billing portal →
+          </a>
+        </div>
+      )}
+
       {/* Billing toggle */}
       <div className="flex items-center justify-center gap-3 mb-6 flex-wrap">
         <span className={`text-[13px] font-medium ${!annual ? "text-text" : "text-text3"}`}>Monthly</span>

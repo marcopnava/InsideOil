@@ -18,6 +18,10 @@ export function useApi<T>(
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (!url) {
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(url);
       const json = await res.json();
@@ -35,12 +39,13 @@ export function useApi<T>(
   }, [url]);
 
   useEffect(() => {
+    if (!url) return;
     fetchData();
     if (intervalMs) {
       const id = setInterval(fetchData, intervalMs);
       return () => clearInterval(id);
     }
-  }, [fetchData, intervalMs]);
+  }, [fetchData, intervalMs, url]);
 
   return { data, loading, error, refetch: fetchData };
 }

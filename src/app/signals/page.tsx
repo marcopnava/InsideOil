@@ -1,10 +1,13 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useApi } from "@/hooks/use-api";
 import { Card } from "@/components/card";
 import { AppShell } from "@/components/app-shell";
 import { InfoTooltip } from "@/components/info-tooltip";
 import { PageHelp } from "@/components/page-help";
+import { LockedPageView } from "@/components/locked-page-view";
+import { hasTierAccess, type Tier } from "@/lib/tiers";
 
 const SIGNALS_HELP = {
   title: "Institutional Signals — what am I looking at?",
@@ -179,7 +182,68 @@ function sentimentBadge(s: string) {
 }
 
 export default function SignalsPage() {
-  const { data, loading, error } = useApi<SignalsPayload>("/api/signals", 120_000);
+  const { data: session } = useSession();
+  const userTier = (session?.user as { subscriptionTier?: Tier } | undefined)?.subscriptionTier ?? "free";
+  const hasAccess = hasTierAccess(userTier, "trader");
+
+  const { data, loading, error } = useApi<SignalsPayload>(hasAccess ? "/api/signals" : "", 120_000);
+
+  if (!hasAccess) {
+    return (
+      <AppShell>
+        <LockedPageView
+          required="trader"
+          currentTier={userTier}
+          title="Institutional Signals"
+          subtitle="The four signals that hedge funds and oil majors pay 40-120k€/year for — floating storage detection, contango arbitrage, OPEC+ compliance, chokepoint flow — recomputed every 5 minutes from live data."
+          features={[
+            "Contango Arbitrage (Brent + WTI) — every forward tenor, P&L per barrel after freight/financing/insurance",
+            "Floating Storage Detector — VLCC tankers idle > 5 days in open sea, with barrel estimates",
+            "Oil Chokepoint Flow — Hormuz, Malacca, Suez, Bab-el-Mandeb, Bosphorus, Danish Straits with 7d-avg anomalies",
+            "OPEC+ Compliance Scoring — per-country loadings vs published quotas",
+            "Forward Curve Structure — contango / backwardation for Brent, WTI and synthetic Dubai",
+            "BDTI + VLCC TCE — tanker freight benchmark with daily price impact",
+          ]}
+          samples={[
+            {
+              title: "Contango Arbitrage — Brent",
+              rows: [
+                ["Spot", "$84.46"],
+                ["3M forward", "$85.12"],
+                ["Contango 3M", "$0.66"],
+                ["Freight cost", "$0.31"],
+                ["P/L $/bbl", "+$0.35"],
+                ["Verdict", "ARB OPEN"],
+              ],
+            },
+            {
+              title: "Chokepoint Flow — Hormuz",
+              rows: [
+                ["Current tankers", "42"],
+                ["24h transits", "118"],
+                ["7d average", "134"],
+                ["Δ%", "-12%"],
+                ["Status", "NORMAL"],
+              ],
+            },
+          ]}
+          description={
+            <>
+              <p>
+                These signals don&apos;t exist in any retail terminal. They&apos;re built on the same
+                logic as <strong>Kpler</strong>, <strong>Vortexa</strong>, <strong>ClipperData</strong> —
+                institutional platforms that cost €40,000 to €120,000 per year.
+              </p>
+              <p>
+                Auto-refreshed every 5 minutes via our worker. Coverage is strongest in EU, US and
+                East Asia. We document all data gaps openly.
+              </p>
+            </>
+          }
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

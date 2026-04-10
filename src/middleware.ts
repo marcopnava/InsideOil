@@ -97,6 +97,10 @@ export async function middleware(req: NextRequest) {
   }
 
   // ─── Page routes ───
+  // Tier gating for pages is NOT enforced by middleware redirect — we want
+  // users to be able to LOAD the page and read a preview + upgrade CTA.
+  // Instead, each gated page renders a <LockedPageView> client-side if the
+  // user's tier is insufficient. Middleware only enforces auth here.
   const required = requiredTierForPath(pathname);
   const isAdmin = adminPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
   const isOpenAuth = openAuthPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
@@ -111,22 +115,11 @@ export async function middleware(req: NextRequest) {
       );
     }
 
-    // Admin routes — require admin role
-    if (isAdmin) {
-      if (token.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
-    } else if (required) {
-      const userTier = (token.subscriptionTier as Tier | undefined) ?? "free";
-      if (!hasTierAccess(userTier, required)) {
-        // redirect to /upgrade with context about what was blocked
-        const url = req.nextUrl.clone();
-        url.pathname = "/upgrade";
-        url.searchParams.set("required", required);
-        url.searchParams.set("from", pathname);
-        return NextResponse.redirect(url);
-      }
+    // Admin routes still strict — require admin role
+    if (isAdmin && token.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
+    // Tier-required pages are allowed through; pages do the preview/lock
   }
 
   // Add security headers

@@ -1,9 +1,12 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useApi } from "@/hooks/use-api";
 import { Card } from "@/components/card";
 import { AppShell } from "@/components/app-shell";
 import { PageHelp } from "@/components/page-help";
+import { LockedPageView } from "@/components/locked-page-view";
+import { hasTierAccess, type Tier } from "@/lib/tiers";
 
 const DIFF_HELP = {
   title: "Crude Differentials & Macro — what am I looking at?",
@@ -76,7 +79,65 @@ const fmt = (n: number | null) => (n != null ? n.toLocaleString("en-US") : "—"
 const usd = (n: number | null) => (n != null ? `$${n.toFixed(2)}` : "—");
 
 export default function DifferentialsPage() {
-  const { data, loading } = useApi<DiffData>("/api/differentials", 120_000);
+  const { data: session } = useSession();
+  const userTier = (session?.user as { subscriptionTier?: Tier } | undefined)?.subscriptionTier ?? "free";
+  const hasAccess = hasTierAccess(userTier, "trader");
+
+  const { data, loading } = useApi<DiffData>(hasAccess ? "/api/differentials" : "", 120_000);
+
+  if (!hasAccess) {
+    return (
+      <AppShell>
+        <LockedPageView
+          required="trader"
+          currentTier={userTier}
+          title="Differentials & Macro"
+          subtitle="Cross-region crude spreads, freight arbitrage, EIA weekly inventories, CFTC speculative positioning — the macro dashboard every retail oil trader should watch every Wednesday and Friday."
+          features={[
+            "Brent − WTI spread (Atlantic basin arbitrage indicator)",
+            "Brent − Dubai EFS (Atlantic vs Mid-East benchmark)",
+            "USGC → Asia arbitrage calculation (WTI + freight vs Dubai)",
+            "EIA Weekly Petroleum Status — crude/gasoline/distillate stocks + SPR + refinery util",
+            "CFTC Commitments of Traders — Managed Money net long on WTI and Brent",
+            "BDTI + implied VLCC TCE context for freight cost",
+          ]}
+          samples={[
+            {
+              title: "Current spreads",
+              rows: [
+                ["Brent − WTI", "$4.28"],
+                ["Brent − Dubai EFS", "$2.15"],
+                ["USGC → Asia arb", "$0.42"],
+              ],
+            },
+            {
+              title: "EIA last release",
+              rows: [
+                ["Crude stocks", "432,156 kb"],
+                ["Gasoline stocks", "232,418 kb"],
+                ["Distillate stocks", "119,567 kb"],
+                ["SPR", "395,210 kb"],
+                ["Refinery util", "91.2%"],
+              ],
+            },
+          ]}
+          description={
+            <>
+              <p>
+                The <strong>EIA Weekly Petroleum Status Report</strong> (Wednesdays 16:30 CET) is
+                the single most market-moving event of the week for crude. This page shows the
+                numbers live, with clear context on surprise direction.
+              </p>
+              <p>
+                The <strong>CFTC Commitments of Traders</strong> (Fridays) shows how hedge funds are
+                positioned — extreme crowding is a contrarian signal that often precedes reversals.
+              </p>
+            </>
+          }
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

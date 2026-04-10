@@ -548,14 +548,29 @@ function SubscriptionTab() {
               })}
             </div>
           </div>
-          <div className="pt-4 border-t border-border">
+          <div className="pt-4 border-t border-border flex items-center gap-3 flex-wrap">
             <a
-              href="/#pricing"
+              href="/upgrade"
               className="inline-block px-5 py-2 bg-text text-white text-[12px] font-semibold rounded-[var(--radius-xs)] hover:opacity-90 no-underline"
             >
               View all plans
             </a>
+            {profile.subscriptionTier !== "free" && (
+              <a
+                href="/api/portal"
+                className="inline-block px-5 py-2 bg-bg2 border border-border text-text text-[12px] font-semibold rounded-[var(--radius-xs)] hover:bg-bg3 no-underline"
+              >
+                Manage billing (upgrade / cancel with proration)
+              </a>
+            )}
           </div>
+          {profile.subscriptionTier !== "free" && (
+            <p className="text-[10px] text-text3 leading-[1.5]">
+              The Stripe Billing Portal lets you switch plan, update card, or cancel. When you
+              upgrade, unused time on the current plan is <strong>automatically credited</strong>
+              toward the new one.
+            </p>
+          )}
         </div>
       )}
     </Card>

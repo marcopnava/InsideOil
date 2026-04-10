@@ -1,10 +1,13 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useApi } from "@/hooks/use-api";
 import { Card } from "@/components/card";
 import { AppShell } from "@/components/app-shell";
 import { PageHelp } from "@/components/page-help";
 import { ExternalVesselLinks } from "@/components/external-vessel-links";
+import { LockedPageView } from "@/components/locked-page-view";
+import { hasTierAccess, type Tier } from "@/lib/tiers";
 import Link from "next/link";
 
 const RUSSIA_HELP = {
@@ -77,7 +80,67 @@ interface RussiaData {
 const fmt = (n: number) => n.toLocaleString("en-US");
 
 export default function RussiaPage() {
-  const { data, loading } = useApi<RussiaData>("/api/russia", 60_000);
+  const { data: session } = useSession();
+  const userTier = (session?.user as { subscriptionTier?: Tier } | undefined)?.subscriptionTier ?? "free";
+  const hasAccess = hasTierAccess(userTier, "institutional");
+
+  const { data, loading } = useApi<RussiaData>(hasAccess ? "/api/russia" : "", 60_000);
+
+  if (!hasAccess) {
+    return (
+      <AppShell>
+        <LockedPageView
+          required="institutional"
+          currentTier={userTier}
+          title="Russia Tanker Tracker"
+          subtitle="Live activity at Russian crude export terminals + dark-fleet detector for sanctions-evasion tanker candidates. The #1 geopolitical driver of Brent prices in 2024-2026."
+          features={[
+            "Live tanker counts at Primorsk, Ust-Luga, Novorossiysk, Kozmino (all major Russian export terminals)",
+            "Estimated barrels on-site per terminal (VLCC/Suezmax/Aframax classification)",
+            "Dark Fleet Detector — tankers near Russian terminals with missing IMO or obfuscated destination",
+            "Classic sanctions evasion signature flagging",
+            "Hover/click vessels for full track map + external cross-check on MarineTraffic",
+            "Historical loadings data beyond 30 days (Institutional only)",
+          ]}
+          samples={[
+            {
+              title: "Primorsk terminal (live)",
+              rows: [
+                ["Tankers in radius", "7"],
+                ["Est. barrels on-site", "7.8M"],
+                ["VLCC class", "2"],
+                ["Status", "Active loading"],
+              ],
+            },
+            {
+              title: "Dark Fleet suspects",
+              rows: [
+                ["Total flagged", "14"],
+                ["Near Baltic terminals", "9"],
+                ["Near Black Sea", "3"],
+                ["No IMO number", "8"],
+                ["Obfuscated destination", "6"],
+              ],
+            },
+          ]}
+          description={
+            <>
+              <p>
+                Russia exports ~5 million b/d of crude. Since 2022 sanctions, much of it moves via
+                &quot;dark fleet&quot; tankers operating outside G7 insurance. Compliance teams at oil majors
+                and banks must monitor this daily.
+              </p>
+              <p>
+                <strong>Why this matters for your trading:</strong> every EU/US sanctions update moves
+                Brent within hours. Spotting dark-fleet loading spikes early gives you 24-72h edge over
+                slower news-based analysis.
+              </p>
+            </>
+          }
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

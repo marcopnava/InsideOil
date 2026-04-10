@@ -110,6 +110,35 @@ function groupByDay(events: CalendarEvent[]): Array<{ day: string; label: string
   return Object.values(groups).sort((a, b) => a.day.localeCompare(b.day));
 }
 
+function StatKpi({
+  label,
+  value,
+  sub,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="bg-bg3 border border-border rounded-[var(--radius)] p-[14px_16px]">
+      <div className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em] mb-1">
+        {label}
+      </div>
+      <div
+        className={`text-[20px] font-bold tracking-[-0.03em] leading-none ${
+          highlight ? "text-accent" : ""
+        }`}
+        style={{ fontFamily: "var(--font-jetbrains)" }}
+      >
+        {value}
+      </div>
+      <div className="text-[9px] text-text3 mt-1">{sub}</div>
+    </div>
+  );
+}
+
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [moc, setMoc] = useState<MocStatus | null>(null);
@@ -145,7 +174,7 @@ export default function CalendarPage() {
   return (
     <AppShell>
       <PageHelp {...CALENDAR_HELP} />
-      <div className="animate-fade-in max-w-[1100px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
+      <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
         <div className="mb-5 sm:mb-6">
           <h1 className="text-[26px] sm:text-[30px] font-bold tracking-[-0.035em]">Economic Calendar</h1>
           <p className="text-[12px] sm:text-sm text-text3 mt-1">
@@ -153,7 +182,34 @@ export default function CalendarPage() {
           </p>
         </div>
 
-        {/* MOC window live indicator */}
+        {/* Top KPI row — match /signals layout pattern */}
+        {moc && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-3.5">
+            <StatKpi
+              label="MOC next session"
+              value={mocMsUntilStart > 0 ? fmtCountdown(mocMsUntilStart) : fmtCountdown(mocMsUntilEnd)}
+              sub={mocMsUntilStart <= 0 && mocMsUntilEnd > 0 ? "ACTIVE NOW" : "17:00 CET"}
+              highlight={mocMsUntilStart <= 0 && mocMsUntilEnd > 0}
+            />
+            <StatKpi
+              label="Events next 24h"
+              value={String(events.filter((e) => new Date(e.at).getTime() - now < 86400_000 && new Date(e.at).getTime() > now).length)}
+              sub="scheduled"
+            />
+            <StatKpi
+              label="High impact"
+              value={String(events.filter((e) => e.impact === "high").length)}
+              sub="next 14 days"
+            />
+            <StatKpi
+              label="Events total"
+              value={String(events.length)}
+              sub="on calendar"
+            />
+          </div>
+        )}
+
+        {/* MOC window explainer card */}
         {moc && (
           <Card
             title="Platts MOC window — Dated Brent"
@@ -164,38 +220,23 @@ export default function CalendarPage() {
             }
             className="mb-3.5"
           >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-baseline gap-4 flex-wrap">
-                <div>
-                  <div className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em] mb-1">
-                    {mocMsUntilStart > 0
-                      ? "Starts in"
-                      : mocMsUntilEnd > 0
-                        ? "Ends in"
-                        : "Closed"}
-                  </div>
-                  <div
-                    className={`text-[30px] sm:text-[36px] font-bold tracking-[-0.03em] leading-none ${
-                      mocMsUntilStart <= 0 && mocMsUntilEnd > 0 ? "text-accent" : ""
-                    }`}
-                    style={{ fontFamily: "var(--font-jetbrains)" }}
-                  >
-                    {mocMsUntilStart > 0 ? fmtCountdown(mocMsUntilStart) : fmtCountdown(mocMsUntilEnd)}
-                  </div>
-                </div>
-                <div className="text-[10px] text-text3">
-                  {fmtLocal(moc.startsAt)} → {fmtLocal(moc.endsAt)} CET
-                </div>
-              </div>
-              <div className="text-[11.5px] text-text2 max-w-[380px] leading-[1.5]">
-                {mocMsUntilStart <= 0 && mocMsUntilEnd > 0 ? (
-                  <strong className="text-accent">
-                    Brent CFDs in the elevated-volatility window. If you don&apos;t have a plan, stay flat.
-                  </strong>
-                ) : (
-                  "30-minute Platts assessment window that sets the daily Dated Brent benchmark."
-                )}
-              </div>
+            <div className="text-[12px] text-text2 leading-[1.55]">
+              <strong className="text-text">What it is:</strong> 30-minute Platts assessment window
+              (17:00-17:30 CET) where physical crude traders submit bids and offers. Sets the daily
+              Dated Brent benchmark.
+            </div>
+            <div className="text-[12px] text-text2 leading-[1.55] mt-2">
+              <strong className="text-text">What to do:</strong>{" "}
+              {mocMsUntilStart <= 0 && mocMsUntilEnd > 0 ? (
+                <span className="text-accent font-semibold">
+                  We&apos;re inside the window now. Brent CFDs have elevated volatility — trade with tight risk or stay flat.
+                </span>
+              ) : (
+                <>
+                  Next window {fmtLocal(moc.startsAt)} → {fmtLocal(moc.endsAt)} CET. Plan your risk or
+                  exit by then.
+                </>
+              )}
             </div>
           </Card>
         )}
