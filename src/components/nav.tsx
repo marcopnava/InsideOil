@@ -27,13 +27,13 @@ const clientLinks: NavItem[] = [
   { href: "/tracking", label: "Live Map" },
   { href: "/trade", label: "Trade" },
   { href: "/signals", label: "Signals" },
-  { href: "/portfolio", label: "Portfolio" },
   { href: "/calendar", label: "Calendar" },
   { href: "/ports", label: "Ports" },
   { href: "/news", label: "News" },
   {
     label: "More",
     children: [
+      { href: "/portfolio", label: "Portfolio" },
       { href: "/weather", label: "Weather" },
       { href: "/differentials", label: "Differentials & Macro" },
       { href: "/russia", label: "Russia Tracker" },
@@ -125,7 +125,12 @@ export function Nav() {
               );
               const open = openDropdown === l.label;
               return (
-                <div key={l.label} className="relative">
+                <div
+                  key={l.label}
+                  className="relative"
+                  onMouseEnter={() => setOpenDropdown(l.label)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
                   <button
                     type="button"
                     onClick={() => setOpenDropdown(open ? null : l.label)}
@@ -146,24 +151,30 @@ export function Nav() {
                     </svg>
                   </button>
                   {open && (
-                    <div className="absolute top-full left-0 mt-1 min-w-[200px] bg-bg3 border border-border rounded-[var(--radius)] shadow-[var(--shadow)] p-1 flex flex-col">
-                      {l.children.map((c) => {
-                        const childActive = pathname === c.href || pathname.startsWith(c.href);
-                        return (
-                          <Link
-                            key={c.href}
-                            href={c.href}
-                            onClick={() => setOpenDropdown(null)}
-                            className={`px-3 py-2 rounded-[var(--radius-xs)] text-[12px] font-medium no-underline transition-colors ${
-                              childActive
-                                ? "text-accent bg-accent-soft"
-                                : "text-text2 hover:text-text hover:bg-black/5"
-                            }`}
-                          >
-                            {c.label}
-                          </Link>
-                        );
-                      })}
+                    <div
+                      className="absolute top-full left-0 pt-2 min-w-[220px]"
+                      /* pt-2 adds a safe area so the cursor can move from the button
+                         to the menu without the dropdown closing */
+                    >
+                      <div className="bg-bg3 border border-border rounded-[var(--radius)] shadow-[var(--shadow2)] p-1 flex flex-col">
+                        {l.children.map((c) => {
+                          const childActive = pathname === c.href || pathname.startsWith(c.href);
+                          return (
+                            <Link
+                              key={c.href}
+                              href={c.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className={`px-3 py-2 rounded-[var(--radius-xs)] text-[12px] font-medium no-underline transition-colors ${
+                                childActive
+                                  ? "text-accent bg-accent-soft"
+                                  : "text-text2 hover:text-text hover:bg-black/5"
+                              }`}
+                            >
+                              {c.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

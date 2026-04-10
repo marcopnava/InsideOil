@@ -27,6 +27,14 @@ export interface CalendarEvent {
   at: Date; // absolute UTC
   source: string;
   tradingTip?: string;
+  /** Plain-language explanation of what exactly is released and why it matters. */
+  whatItMeans?: string;
+  /** Typical % price move at the release based on history. */
+  typicalMove?: string;
+  /** The specific numbers to watch in the release. */
+  watchList?: string[];
+  /** Education section anchor for this topic. */
+  educationLink?: string;
 }
 
 const DAY = 86400_000;
@@ -131,6 +139,14 @@ export function getUpcomingEvents(horizonDays = 14): CalendarEvent[] {
       at: d,
       source: "api.org",
       tradingTip: "Big API build often (but not always) precedes a big EIA build the next day.",
+      whatItMeans:
+        "The American Petroleum Institute is the US oil industry trade association. Every Tuesday at 16:30 ET (21:30 CET standard time) they release their own survey of US crude oil, gasoline and distillate inventories — 17 hours before the official EIA data.",
+      typicalMove: "±0.5% to ±1.5% on CL futures in the first minutes after release",
+      watchList: [
+        "Crude stocks change vs consensus",
+        "Cushing (WTI delivery point) inventory",
+        "Gasoline and distillate stocks",
+      ],
     });
     d = new Date(d.getTime() + 7 * DAY);
   }
@@ -149,6 +165,17 @@ export function getUpcomingEvents(horizonDays = 14): CalendarEvent[] {
       source: "eia.gov",
       tradingTip:
         "Follow the 4-number playbook: crude stocks, gasoline, distillate, refinery util. See Education → The Wednesday EIA playbook.",
+      whatItMeans:
+        "The Energy Information Administration is the statistics arm of the US Department of Energy. Every Wednesday at 10:30 ET (16:30 CET) they release the Weekly Petroleum Status Report — the official, verified version of what API teased on Tuesday night. This is the single most market-moving event of the week for crude.",
+      typicalMove: "±1% to ±3% on CL and BZ futures in the first 10 minutes",
+      watchList: [
+        "Crude stocks change vs consensus (±2 Mbbl is the surprise threshold)",
+        "Gasoline stocks (summer driving season indicator)",
+        "Distillate stocks (winter heating indicator)",
+        "Refinery utilization % (above 92% = strong crude demand)",
+        "SPR stocks (Strategic Petroleum Reserve refill/draw)",
+      ],
+      educationLink: "eia-playbook",
     });
     d = new Date(d.getTime() + 7 * DAY);
   }
@@ -164,6 +191,14 @@ export function getUpcomingEvents(horizonDays = 14): CalendarEvent[] {
       impact: "low",
       at: d,
       source: "bakerhughes.com",
+      whatItMeans:
+        "Baker Hughes publishes the number of active drilling rigs operating in the US every Friday at 13:00 ET. It's a leading indicator of US oil production 6-12 months ahead: more rigs today = more barrels in a year.",
+      typicalMove: "< 0.5% on CL at release, but trends matter over months",
+      watchList: [
+        "Total US oil rigs (absolute number)",
+        "Weekly change (+/-)",
+        "Permian basin rig count (the main US shale play)",
+      ],
     });
     d = new Date(d.getTime() + 7 * DAY);
   }
@@ -180,6 +215,14 @@ export function getUpcomingEvents(horizonDays = 14): CalendarEvent[] {
       at: d,
       source: "cftc.gov",
       tradingTip: "Extreme net long (>300k contracts) = crowded, risk of unwind. Extreme short = bearish exhaustion.",
+      whatItMeans:
+        "The CFTC is the US futures regulator. Every Friday after close they publish the Commitments of Traders report, showing how hedge funds and professional money managers are positioned in WTI and Brent futures as of the prior Tuesday.",
+      typicalMove: "Indirect — doesn't move prices at release, but informs mean-reversion trades",
+      watchList: [
+        "Managed Money net long WTI (extreme thresholds: 300k long / 50k short)",
+        "Managed Money net long Brent (same logic)",
+        "Week-over-week change in positioning",
+      ],
     });
     d = new Date(d.getTime() + 7 * DAY);
   }
@@ -197,6 +240,14 @@ export function getUpcomingEvents(horizonDays = 14): CalendarEvent[] {
       at: d,
       source: "spglobal.com/platts",
       tradingTip: "Brent CFDs see elevated volatility 17:00-17:30 CET. Either trade the volatility or stay flat.",
+      whatItMeans:
+        "S&P Global Platts runs a structured 30-minute auction called the Market-on-Close (MOC) window where physical crude traders submit bids and offers for Forties, Oseberg, Ekofisk, Troll and Brent cargoes. The settle becomes the Dated Brent benchmark — the reference for 70% of global oil pricing.",
+      typicalMove: "Elevated volatility +/- 0.2% to 0.8% on Brent CFDs during the window",
+      watchList: [
+        "Bid/offer spread widening (indicates thin liquidity)",
+        "Sudden headlines from major physical traders (Vitol, Trafigura, Glencore)",
+        "Post-window settle direction vs intraday trend",
+      ],
     });
     d = new Date(d.getTime() + DAY);
     // Skip weekends

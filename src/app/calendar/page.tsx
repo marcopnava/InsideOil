@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { AppShell } from "@/components/app-shell";
 import { Card } from "@/components/card";
 import { PageHelp } from "@/components/page-help";
@@ -8,7 +9,7 @@ import { PageHelp } from "@/components/page-help";
 const CALENDAR_HELP = {
   title: "Economic Calendar — what am I looking at?",
   intro:
-    "The list of upcoming market-moving events for crude oil: EIA, API, Baker Hughes, CFTC, OPEC+, IEA, FOMC, Platts MOC window. Ordered by time. Countdowns refresh live.",
+    "The list of upcoming market-moving events for crude oil: EIA, API, Baker Hughes, CFTC, OPEC+, IEA, FOMC, Platts MOC window. Ordered by time. Countdowns refresh live. Hover any event to see details.",
   sections: [
     {
       title: "Impact levels",
@@ -30,6 +31,7 @@ const CALENDAR_HELP = {
       title: "How to use",
       body: [
         "Check the calendar at start of day. Reduce leverage going into HIGH impact events.",
+        "Hover (desktop) or tap (mobile) any event row to see what it means, typical price move, and the specific numbers to watch.",
         "Set personal alerts (Settings → Alerts) for prices around release windows.",
       ],
     },
@@ -45,6 +47,10 @@ interface CalendarEvent {
   at: string;
   source: string;
   tradingTip?: string;
+  whatItMeans?: string;
+  typicalMove?: string;
+  watchList?: string[];
+  educationLink?: string;
 }
 
 interface MocStatus {
@@ -55,7 +61,7 @@ interface MocStatus {
   msUntilEnd: number;
 }
 
-const impactColor: Record<string, string> = {
+const impactBadge: Record<string, string> = {
   high: "bg-accent text-white",
   medium: "bg-black text-white",
   low: "bg-black/6 text-text2",
@@ -83,10 +89,32 @@ function fmtLocal(iso: string): string {
   });
 }
 
+function fmtDay(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    timeZone: "Europe/Rome",
+  });
+}
+
+function groupByDay(events: CalendarEvent[]): Array<{ day: string; label: string; items: CalendarEvent[] }> {
+  const groups: Record<string, { day: string; label: string; items: CalendarEvent[] }> = {};
+  for (const e of events) {
+    const day = new Date(e.at).toLocaleDateString("en-CA", { timeZone: "Europe/Rome" }); // YYYY-MM-DD
+    if (!groups[day]) {
+      groups[day] = { day, label: fmtDay(e.at), items: [] };
+    }
+    groups[day].items.push(e);
+  }
+  return Object.values(groups).sort((a, b) => a.day.localeCompare(b.day));
+}
+
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [moc, setMoc] = useState<MocStatus | null>(null);
-  const [tick, setTick] = useState(0);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [, forceTick] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -105,13 +133,14 @@ export default function CalendarPage() {
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    const id = setInterval(() => forceTick((t) => t + 1), 1000);
     return () => clearInterval(id);
   }, []);
 
   const now = Date.now();
   const mocMsUntilStart = moc ? new Date(moc.startsAt).getTime() - now : 0;
   const mocMsUntilEnd = moc ? new Date(moc.endsAt).getTime() - now : 0;
+  const groups = groupByDay(events);
 
   return (
     <AppShell>
@@ -120,35 +149,45 @@ export default function CalendarPage() {
         <div className="mb-5 sm:mb-6">
           <h1 className="text-[26px] sm:text-[30px] font-bold tracking-[-0.035em]">Economic Calendar</h1>
           <p className="text-[12px] sm:text-sm text-text3 mt-1">
-            Upcoming market-moving events for crude oil — next 14 days.
+            Upcoming market-moving events for crude oil — next 14 days
           </p>
         </div>
 
         {/* MOC window live indicator */}
         {moc && (
-          <Card title="Platts MOC window — Dated Brent" className="mb-3.5">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <div className="text-[11px] text-text3 mb-1">
-                  {mocMsUntilStart > 0
-                    ? "Next MOC window starts in"
-                    : mocMsUntilEnd > 0
-                      ? "MOC window ACTIVE — ends in"
-                      : "Window closed"}
+          <Card
+            title="Platts MOC window — Dated Brent"
+            badge={
+              mocMsUntilStart <= 0 && mocMsUntilEnd > 0
+                ? { text: "ACTIVE NOW", variant: "accent" }
+                : { text: "Next session", variant: "dark" }
+            }
+            className="mb-3.5"
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-baseline gap-4 flex-wrap">
+                <div>
+                  <div className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em] mb-1">
+                    {mocMsUntilStart > 0
+                      ? "Starts in"
+                      : mocMsUntilEnd > 0
+                        ? "Ends in"
+                        : "Closed"}
+                  </div>
+                  <div
+                    className={`text-[30px] sm:text-[36px] font-bold tracking-[-0.03em] leading-none ${
+                      mocMsUntilStart <= 0 && mocMsUntilEnd > 0 ? "text-accent" : ""
+                    }`}
+                    style={{ fontFamily: "var(--font-jetbrains)" }}
+                  >
+                    {mocMsUntilStart > 0 ? fmtCountdown(mocMsUntilStart) : fmtCountdown(mocMsUntilEnd)}
+                  </div>
                 </div>
-                <div
-                  className={`text-[26px] sm:text-[30px] font-bold tracking-[-0.03em] leading-none ${
-                    mocMsUntilStart <= 0 && mocMsUntilEnd > 0 ? "text-accent" : ""
-                  }`}
-                  style={{ fontFamily: "var(--font-jetbrains)" }}
-                >
-                  {mocMsUntilStart > 0 ? fmtCountdown(mocMsUntilStart) : fmtCountdown(mocMsUntilEnd)}
-                </div>
-                <div className="text-[11px] text-text3 mt-1">
+                <div className="text-[10px] text-text3">
                   {fmtLocal(moc.startsAt)} → {fmtLocal(moc.endsAt)} CET
                 </div>
               </div>
-              <div className="text-[11px] text-text2 max-w-[360px] leading-[1.5]">
+              <div className="text-[11.5px] text-text2 max-w-[380px] leading-[1.5]">
                 {mocMsUntilStart <= 0 && mocMsUntilEnd > 0 ? (
                   <strong className="text-accent">
                     Brent CFDs in the elevated-volatility window. If you don&apos;t have a plan, stay flat.
@@ -162,54 +201,149 @@ export default function CalendarPage() {
         )}
 
         {loading ? (
-          <div className="text-text3 text-xs">Loading events…</div>
+          <Card title="Upcoming events">
+            <div className="text-text3 text-xs">Loading events…</div>
+          </Card>
         ) : (
-          <div className="flex flex-col gap-2.5">
-            {events.map((e) => {
-              const ms = new Date(e.at).getTime() - now;
-              const happening = ms <= 0 && ms > -3600_000;
-              return (
-                <div
-                  key={e.id}
-                  className={`bg-bg3 border rounded-[var(--radius)] p-4 sm:p-5 ${
-                    happening ? "border-accent ring-1 ring-accent/20" : "border-border"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="flex-1 min-w-[240px]">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className={`text-[9px] font-bold uppercase tracking-[0.08em] px-2 py-[2px] rounded-full ${impactColor[e.impact]}`}>
-                          {e.impact}
-                        </span>
-                        <span className="text-[10px] text-text3 uppercase tracking-[0.06em]">{e.category}</span>
-                      </div>
-                      <div className="text-[14px] font-semibold text-text leading-tight">{e.title}</div>
-                      <div className="text-[11.5px] text-text2 mt-1 leading-[1.5]">{e.description}</div>
-                      {e.tradingTip && (
-                        <div className="mt-2 text-[11px] text-text2 bg-bg2 border-l-2 border-accent pl-3 py-1.5">
-                          <span className="font-semibold text-text">Tip: </span>
-                          {e.tradingTip}
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div
-                        className={`text-[16px] font-bold tracking-[-0.02em] ${ms <= 0 ? "text-text3" : ms < 24 * 3600_000 ? "text-accent" : "text-text"}`}
-                        style={{ fontFamily: "var(--font-jetbrains)" }}
-                      >
-                        {ms <= 0 ? "past" : `in ${fmtCountdown(ms)}`}
-                      </div>
-                      <div className="text-[10px] text-text3 mt-0.5">{fmtLocal(e.at)} CET</div>
-                    </div>
+          <Card title={`Upcoming events (${events.length})`}>
+            <div className="flex flex-col gap-5">
+              {groups.map((g) => (
+                <div key={g.day}>
+                  <div className="text-[9px] font-bold text-text3 uppercase tracking-[0.08em] mb-2 sticky top-0">
+                    {g.label}
+                  </div>
+                  <div className="flex flex-col">
+                    {g.items.map((e) => {
+                      const ms = new Date(e.at).getTime() - now;
+                      const isPast = ms < 0;
+                      const isOpen = expanded === e.id;
+                      return (
+                        <motion.div
+                          key={e.id}
+                          onMouseEnter={() => setExpanded(e.id)}
+                          onMouseLeave={() => setExpanded(null)}
+                          onClick={() => setExpanded((prev) => (prev === e.id ? null : e.id))}
+                          className={`border-t border-border py-3 cursor-pointer group ${
+                            isOpen ? "bg-bg2/60" : "hover:bg-bg2/40"
+                          } transition-colors`}
+                        >
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  className={`text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-[2px] rounded-full ${impactBadge[e.impact]}`}
+                                >
+                                  {e.impact}
+                                </span>
+                                <span className="text-[9px] text-text3 uppercase tracking-[0.06em]">
+                                  {e.category}
+                                </span>
+                              </div>
+                              <div className="text-[13px] font-semibold text-text mt-1 leading-tight">{e.title}</div>
+                              <div className="text-[11px] text-text3 mt-0.5 leading-[1.45]">{e.description}</div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <div
+                                className={`text-[13px] font-bold tracking-[-0.02em] whitespace-nowrap ${
+                                  isPast ? "text-text3" : ms < 24 * 3600_000 ? "text-accent" : "text-text"
+                                }`}
+                                style={{ fontFamily: "var(--font-jetbrains)" }}
+                              >
+                                {isPast ? "past" : `in ${fmtCountdown(ms)}`}
+                              </div>
+                              <div className="text-[10px] text-text3 mt-0.5">
+                                {new Date(e.at).toLocaleTimeString("en-GB", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  timeZone: "Europe/Rome",
+                                })}{" "}
+                                CET
+                              </div>
+                            </div>
+                          </div>
+
+                          <AnimatePresence initial={false}>
+                            {isOpen && (e.whatItMeans || e.tradingTip || e.watchList) && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-3 pt-3 border-t border-border grid grid-cols-1 lg:grid-cols-2 gap-x-5 gap-y-3">
+                                  {e.whatItMeans && (
+                                    <div className="lg:col-span-2">
+                                      <div className="text-[9px] font-bold text-text3 uppercase tracking-[0.07em] mb-1">
+                                        What it means
+                                      </div>
+                                      <p className="text-[11.5px] text-text2 leading-[1.55]">{e.whatItMeans}</p>
+                                    </div>
+                                  )}
+                                  {e.typicalMove && (
+                                    <div>
+                                      <div className="text-[9px] font-bold text-text3 uppercase tracking-[0.07em] mb-1">
+                                        Typical price move
+                                      </div>
+                                      <p className="text-[11.5px] text-text2 leading-[1.5]">{e.typicalMove}</p>
+                                    </div>
+                                  )}
+                                  {e.source && (
+                                    <div>
+                                      <div className="text-[9px] font-bold text-text3 uppercase tracking-[0.07em] mb-1">
+                                        Source
+                                      </div>
+                                      <p className="text-[11.5px] text-text2">{e.source}</p>
+                                    </div>
+                                  )}
+                                  {e.watchList && e.watchList.length > 0 && (
+                                    <div className="lg:col-span-2">
+                                      <div className="text-[9px] font-bold text-text3 uppercase tracking-[0.07em] mb-1">
+                                        What to watch
+                                      </div>
+                                      <ul className="flex flex-col gap-1">
+                                        {e.watchList.map((w, i) => (
+                                          <li
+                                            key={i}
+                                            className="text-[11.5px] text-text2 leading-[1.5] pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-text3"
+                                          >
+                                            {w}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {e.tradingTip && (
+                                    <div className="lg:col-span-2 bg-bg3 border-l-2 border-accent pl-3 py-1.5 rounded-r">
+                                      <div className="text-[9px] font-bold text-accent uppercase tracking-[0.07em] mb-0.5">
+                                        Trading tip
+                                      </div>
+                                      <p className="text-[11.5px] text-text2 leading-[1.55]">{e.tradingTip}</p>
+                                    </div>
+                                  )}
+                                  {e.educationLink && (
+                                    <div className="lg:col-span-2">
+                                      <a
+                                        href={`/education#${e.educationLink}`}
+                                        className="text-[11px] text-accent font-semibold no-underline hover:underline"
+                                      >
+                                        Read the full playbook in Education →
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          </Card>
         )}
-
-        {/* Invisible input just to pick up the tick and force re-render */}
-        <div className="hidden">{tick}</div>
       </div>
     </AppShell>
   );
