@@ -170,54 +170,137 @@ const competitors = [
 
 function CompetitorSection() {
   return (
-    <section id="comparison" className="py-16 sm:py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-bg">
+    <section id="comparison" className="py-16 sm:py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-bg overflow-hidden">
       <div className="max-w-[1100px] mx-auto">
-        <FadeIn>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
           <div className="text-center mb-10 sm:mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white mb-5">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white mb-5"
+            >
+              <motion.span
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2.4, repeat: Infinity }}
+                className="w-1.5 h-1.5 rounded-full bg-accent inline-block"
+              />
               <span className="text-[10px] sm:text-[11px] font-semibold text-text3 uppercase tracking-[0.08em]">The alternative</span>
-            </div>
-            <h2 className="text-[26px] sm:text-[32px] md:text-[36px] font-bold tracking-[-0.035em] leading-[1.15] max-w-[820px] mx-auto px-2">
-              The institutional stack costs €18,000 to €120,000 a year.
-            </h2>
-            <p className="text-[13px] sm:text-[15px] text-text2 mt-4 max-w-[680px] mx-auto leading-[1.6] px-2">
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="text-[26px] sm:text-[32px] md:text-[36px] font-bold tracking-[-0.035em] leading-[1.15] max-w-[820px] mx-auto px-2"
+            >
+              The institutional stack costs{" "}
+              <motion.span
+                initial={{ backgroundSize: "0% 100%" }}
+                whileInView={{ backgroundSize: "100% 100%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
+                style={{
+                  backgroundImage: "linear-gradient(transparent 65%, rgba(232,89,12,0.25) 65%)",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "left center",
+                }}
+                className="inline"
+              >
+                €18,000 to €120,000
+              </motion.span>{" "}
+              a year.
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="text-[13px] sm:text-[15px] text-text2 mt-4 max-w-[680px] mx-auto leading-[1.6] px-2"
+            >
               Kpler, Vortexa, Bloomberg, LSEG — the data Western hedge funds and oil majors use
               to trade crude. InsideOil Trader is <strong className="text-text">€990 a year</strong>.
               Institutional is <strong className="text-text">€4,990</strong>. Same class of signals,
               a fraction of the budget.
-            </p>
+            </motion.p>
           </div>
-        </FadeIn>
+        </motion.div>
 
-        {/* ─── Mobile layout: card stack ─────────────────── */}
-        <div className="md:hidden flex flex-col gap-3">
+        {/* ─── Mobile layout: card stack with stagger ─────────────────── */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+          }}
+          className="md:hidden flex flex-col gap-3"
+        >
           {/* InsideOil highlighted */}
-          <div className="bg-white border-2 border-accent rounded-[12px] p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div>
-                <div className="text-[16px] font-bold text-text">InsideOil</div>
-                <div className="text-[11px] text-text2 mt-0.5">Trader / Institutional</div>
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 24, scale: 0.98 },
+              visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+            }}
+            whileHover={{ scale: 1.01 }}
+            className="relative bg-white border-2 border-accent rounded-[12px] p-5 shadow-[0_4px_24px_rgba(232,89,12,0.08)]"
+          >
+            {/* Spotlight glow */}
+            <motion.div
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="absolute -inset-[1px] rounded-[13px] pointer-events-none"
+              style={{
+                background: "radial-gradient(circle at 0% 0%, rgba(232,89,12,0.12), transparent 60%)",
+              }}
+            />
+            <div className="relative">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <div className="text-[16px] font-bold text-text">InsideOil</div>
+                  <div className="text-[11px] text-text2 mt-0.5">Trader / Institutional</div>
+                </div>
+                <motion.span
+                  initial={{ rotate: -4, scale: 0.8 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ type: "spring", delay: 0.4, stiffness: 200 }}
+                  className="text-[9px] font-bold text-accent bg-accent-soft px-2 py-[3px] rounded-full whitespace-nowrap"
+                >
+                  You are here
+                </motion.span>
               </div>
-              <span className="text-[9px] font-bold text-accent bg-accent-soft px-2 py-[3px] rounded-full whitespace-nowrap">
-                You are here
-              </span>
+              <div className="flex items-baseline gap-2 mb-3">
+                <span className="text-[22px] font-bold text-accent tracking-[-0.02em]">€990 – €4,990</span>
+                <span className="text-[11px] text-text3">/ year</span>
+              </div>
+              <p className="text-[12px] text-text2 leading-[1.5]">
+                Global AIS, forward curves, floating storage detector, contango arbitrage, chokepoint flow,
+                OPEC+ compliance, EIA + CFTC, crude differentials, Russia & dark fleet tracker.
+              </p>
+              <div className="text-[11px] text-text3 mt-3 pt-3 border-t border-border">
+                <span className="font-semibold text-text2">Access:</span> Self-serve, instant
+              </div>
             </div>
-            <div className="flex items-baseline gap-2 mb-3">
-              <span className="text-[22px] font-bold text-accent tracking-[-0.02em]">€990 – €4,990</span>
-              <span className="text-[11px] text-text3">/ year</span>
-            </div>
-            <p className="text-[12px] text-text2 leading-[1.5]">
-              Global AIS, forward curves, floating storage detector, contango arbitrage, chokepoint flow,
-              OPEC+ compliance, EIA + CFTC, crude differentials, Russia & dark fleet tracker.
-            </p>
-            <div className="text-[11px] text-text3 mt-3 pt-3 border-t border-border">
-              <span className="font-semibold text-text2">Access:</span> Self-serve, instant
-            </div>
-          </div>
+          </motion.div>
 
           {/* Competitors */}
           {competitors.map((c) => (
-            <div key={c.name} className="bg-white border border-border rounded-[12px] p-5">
+            <motion.div
+              key={c.name}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+              }}
+              whileHover={{ x: 4, transition: { duration: 0.2 } }}
+              className="bg-white border border-border rounded-[12px] p-5"
+            >
               <div className="text-[15px] font-bold text-text mb-2">{c.name}</div>
               <div className="flex items-baseline gap-2 mb-3">
                 <span className="text-[17px] font-bold text-text2 tracking-[-0.02em]">{c.price}</span>
@@ -227,25 +310,62 @@ function CompetitorSection() {
               <div className="text-[11px] text-text3 mt-3 pt-3 border-t border-border">
                 <span className="font-semibold text-text2">Access:</span> {c.access}
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* ─── Desktop layout: table ─────────────────── */}
-        <div className="hidden md:block bg-white border border-border rounded-[14px] overflow-hidden">
+        {/* ─── Desktop layout: animated table ─────────────────── */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } },
+          }}
+          className="hidden md:block bg-white border border-border rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04),0_12px_40px_rgba(0,0,0,0.04)]"
+        >
           {/* Header row */}
-          <div className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-4 border-b border-border bg-bg">
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: -10 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+            }}
+            className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-4 border-b border-border bg-bg"
+          >
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Provider</div>
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Annual price</div>
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">What they give you</div>
             <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em]">Access</div>
-          </div>
+          </motion.div>
           {/* InsideOil highlighted row */}
-          <div className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border bg-accent-soft/40">
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, x: -30 },
+              visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+            }}
+            whileHover={{ backgroundColor: "rgba(232,89,12,0.12)" }}
+            className="relative grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border bg-accent-soft/40 overflow-hidden"
+          >
+            {/* Highlight bar left edge */}
+            <motion.div
+              initial={{ scaleY: 0 }}
+              whileInView={{ scaleY: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="absolute left-0 top-0 bottom-0 w-[3px] bg-accent origin-top"
+            />
             <div>
               <div className="text-[14px] font-bold text-text flex items-center gap-2 flex-wrap">
                 InsideOil
-                <span className="text-[9px] font-bold text-accent bg-accent-soft px-1.5 py-[1px] rounded-full">You are here</span>
+                <motion.span
+                  initial={{ scale: 0.7, rotate: -6 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", delay: 0.9, stiffness: 200 }}
+                  className="text-[9px] font-bold text-accent bg-accent-soft px-1.5 py-[1px] rounded-full"
+                >
+                  You are here
+                </motion.span>
               </div>
               <div className="text-[11px] text-text2 mt-0.5">Trader / Institutional</div>
             </div>
@@ -258,12 +378,17 @@ function CompetitorSection() {
               OPEC+ compliance, EIA + CFTC, crude differentials, Russia & dark fleet tracker.
             </div>
             <div className="text-[11px] text-text2">Self-serve, instant</div>
-          </div>
+          </motion.div>
           {/* Competitors */}
           {competitors.map((c) => (
-            <div
+            <motion.div
               key={c.name}
-              className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border last:border-b-0"
+              variants={{
+                hidden: { opacity: 0, x: 20 },
+                visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+              }}
+              whileHover={{ backgroundColor: "rgba(0,0,0,0.02)", x: 3 }}
+              className="grid grid-cols-[1.6fr_1fr_2fr_1.2fr] gap-4 px-6 py-5 border-b border-border last:border-b-0 cursor-default"
             >
               <div>
                 <div className="text-[13px] font-semibold text-text">{c.name}</div>
@@ -274,59 +399,82 @@ function CompetitorSection() {
               </div>
               <div className="text-[11.5px] text-text3 leading-[1.4]">{c.notes}</div>
               <div className="text-[11px] text-text3">{c.access}</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <FadeIn delay={0.15}>
-          <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-            <div className="bg-white border border-border rounded-[12px] p-5 sm:p-6">
-              <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">10× cheaper</div>
-              <div className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] leading-tight">
-                Trader annual vs Bloomberg Terminal
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+          }}
+          className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5"
+        >
+          {[
+            {
+              tag: "10× cheaper",
+              title: "Trader annual vs Bloomberg Terminal",
+              body: "€990/year vs €24,000/year. The overlap on oil analytics is meaningful — our signals cover the same categories.",
+              gradient: "from-accent-soft to-transparent",
+            },
+            {
+              tag: "25× cheaper",
+              title: "Institutional vs Kpler entry tier",
+              body: "€4,990/year vs €120,000/year Kpler enterprise. You give up deep satellite AIS, you gain self-serve signup and no six-month procurement.",
+              gradient: "from-accent-soft to-transparent",
+            },
+            {
+              tag: "Self-serve",
+              title: "Instant signup, cancel anytime",
+              body: "No sales call. No procurement. No minimum seat licence. Card at checkout, full access in under 60 seconds.",
+              gradient: "from-black/5 to-transparent",
+            },
+          ].map((c, i) => (
+            <motion.div
+              key={c.tag}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+                },
+              }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="group relative bg-white border border-border rounded-[12px] p-5 sm:p-6 overflow-hidden cursor-default"
+            >
+              {/* Animated gradient bg on hover */}
+              <motion.div
+                className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+              />
+              {/* Animated accent line */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.3 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute top-0 left-0 right-0 h-[2px] bg-accent origin-left"
+              />
+              <div className="relative">
+                <div className="text-[10px] font-bold text-accent uppercase tracking-[0.08em] mb-3 flex items-center gap-1.5">
+                  <motion.span
+                    animate={{ scale: [1, 1.4, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.4 }}
+                    className="w-1.5 h-1.5 rounded-full bg-accent inline-block"
+                  />
+                  {c.tag}
+                </div>
+                <div className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] leading-tight">
+                  {c.title}
+                </div>
+                <p className="text-[12px] text-text3 mt-3 leading-[1.5]">{c.body}</p>
               </div>
-              <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
-                €990/year vs €24,000/year. The overlap on oil analytics is meaningful — our signals
-                cover the same categories.
-              </p>
-            </div>
-            <div className="bg-white border border-border rounded-[12px] p-5 sm:p-6">
-              <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">25× cheaper</div>
-              <div className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] leading-tight">
-                Institutional vs Kpler entry tier
-              </div>
-              <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
-                €4,990/year vs €120,000/year Kpler enterprise. You give up deep satellite AIS,
-                you gain self-serve signup and no six-month procurement.
-              </p>
-            </div>
-            <div className="bg-white border border-border rounded-[12px] p-5 sm:p-6">
-              <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">Self-serve</div>
-              <div className="text-[18px] sm:text-[22px] font-bold tracking-[-0.03em] leading-tight">
-                Instant signup, cancel anytime
-              </div>
-              <p className="text-[12px] text-text3 mt-3 leading-[1.5]">
-                No sales call. No procurement. No minimum seat licence. Card at checkout, full access
-                in under 60 seconds.
-              </p>
-            </div>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.25}>
-          <div className="mt-8 sm:mt-10 px-5 sm:px-6 py-5 bg-white border border-border rounded-[12px]">
-            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.08em] mb-2">Honest disclosure</div>
-            <p className="text-[12px] text-text2 leading-[1.6]">
-              InsideOil uses free public data feeds (AISStream terrestrial AIS, EIA, CFTC, Yahoo,
-              Open-Meteo, OpenSky). Kpler, Vortexa and Platts run paid satellite AIS and proprietary
-              pipelines — their Persian Gulf and West Africa coverage is more complete. Where our
-              coverage is weaker we document it openly (see our Education → Platform Limitations
-              section). For 95% of crude trading decisions our data is sufficient. If you need
-              full satellite-grade coverage and are willing to pay 10-100× more, Kpler is the
-              honest answer.
-            </p>
-          </div>
-        </FadeIn>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

@@ -27,7 +27,6 @@ const clientLinks: NavItem[] = [
   { href: "/tracking", label: "Live Map" },
   { href: "/trade", label: "Trade" },
   { href: "/signals", label: "Signals" },
-  { href: "/alerts", label: "Alerts" },
   { href: "/ports", label: "Ports" },
   { href: "/weather", label: "Weather" },
   { href: "/news", label: "News" },
@@ -39,6 +38,7 @@ const clientLinks: NavItem[] = [
     ],
   },
   { href: "/education", label: "Education" },
+  { href: "/settings", label: "Settings" },
 ];
 
 const adminLinks: NavItem[] = [
