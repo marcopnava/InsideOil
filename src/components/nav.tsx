@@ -2,12 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { SearchBar } from "./search-bar";
 import { NotificationBell } from "./notifications";
 
-const clientLinks = [
+interface NavLink {
+  href: string;
+  label: string;
+}
+interface NavGroup {
+  label: string;
+  children: NavLink[];
+}
+type NavItem = NavLink | NavGroup;
+
+function isGroup(i: NavItem): i is NavGroup {
+  return (i as NavGroup).children !== undefined;
+}
+
+const clientLinks: NavItem[] = [
   { href: "/dashboard", label: "Command Center" },
   { href: "/briefing", label: "Briefing" },
   { href: "/tracking", label: "Live Map" },
@@ -17,10 +31,17 @@ const clientLinks = [
   { href: "/ports", label: "Ports" },
   { href: "/weather", label: "Weather" },
   { href: "/news", label: "News" },
+  {
+    label: "More",
+    children: [
+      { href: "/differentials", label: "Differentials & Macro" },
+      { href: "/russia", label: "Russia Tracker" },
+    ],
+  },
   { href: "/education", label: "Education" },
 ];
 
-const adminLinks = [
+const adminLinks: NavItem[] = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/data-status", label: "Data Status" },
   { href: "/admin/metrics", label: "Metrics & Revenue" },
@@ -34,11 +55,22 @@ export function Nav() {
   const links = isAdmin ? adminLinks : clientLinks;
   const [time, setTime] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
+    setOpenDropdown(null);
   }, [pathname]);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!dropdownRef.current) return;
+      if (!dropdownRef.current.contains(e.target as Node)) setOpenDropdown(null);
+    }
+    if (openDropdown) document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [openDropdown]);
 
   useEffect(() => {
     function tick() {
@@ -83,8 +115,59 @@ export function Nav() {
         </Link>
 
         {/* Desktop nav links */}
-        <div className="hidden md:flex gap-[2px] shrink-0">
+        <div className="hidden md:flex gap-[2px] shrink-0 relative" ref={dropdownRef}>
           {links.map((l) => {
+            if (isGroup(l)) {
+              const hasActive = l.children.some(
+                (c) => pathname === c.href || pathname.startsWith(c.href)
+              );
+              const open = openDropdown === l.label;
+              return (
+                <div key={l.label} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown(open ? null : l.label)}
+                    className={`px-2.5 py-[6px] rounded-[var(--radius-xs)] text-[11.5px] font-medium transition-all whitespace-nowrap cursor-pointer inline-flex items-center gap-1 ${
+                      hasActive || open
+                        ? "text-accent bg-accent-soft"
+                        : "text-text3 hover:text-text hover:bg-black/4"
+                    }`}
+                  >
+                    {l.label}
+                    <svg
+                      width="8"
+                      height="8"
+                      viewBox="0 0 8 8"
+                      className={`transition-transform ${open ? "rotate-180" : ""}`}
+                    >
+                      <path d="M1 2 L4 6 L7 2" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  {open && (
+                    <div className="absolute top-full left-0 mt-1 min-w-[200px] bg-bg3 border border-border rounded-[var(--radius)] shadow-[var(--shadow)] p-1 flex flex-col">
+                      {l.children.map((c) => {
+                        const childActive = pathname === c.href || pathname.startsWith(c.href);
+                        return (
+                          <Link
+                            key={c.href}
+                            href={c.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className={`px-3 py-2 rounded-[var(--radius-xs)] text-[12px] font-medium no-underline transition-colors ${
+                              childActive
+                                ? "text-accent bg-accent-soft"
+                                : "text-text2 hover:text-text hover:bg-black/5"
+                            }`}
+                          >
+                            {c.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             const active = pathname === l.href || (l.href !== "/admin" && pathname.startsWith(l.href));
             return (
               <Link
@@ -129,10 +212,33 @@ export function Nav() {
         <div className="fixed inset-0 z-[999] md:hidden" onClick={() => setMobileOpen(false)}>
           <div className="absolute inset-0 bg-black/20" />
           <div
-            className="absolute top-[var(--nav-h)] left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-border shadow-lg p-4 flex flex-col gap-1"
+            className="absolute top-[var(--nav-h)] left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-border shadow-lg p-4 flex flex-col gap-1 max-h-[calc(100vh-var(--nav-h))] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {links.map((l) => {
+              if (isGroup(l)) {
+                return (
+                  <div key={l.label}>
+                    <div className="px-4 py-2 text-[10px] font-bold text-text3 uppercase tracking-[0.07em]">
+                      {l.label}
+                    </div>
+                    {l.children.map((c) => {
+                      const active = pathname === c.href || pathname.startsWith(c.href);
+                      return (
+                        <Link
+                          key={c.href}
+                          href={c.href}
+                          className={`pl-6 pr-4 py-3 rounded-[var(--radius-xs)] text-[14px] font-medium no-underline transition-all block ${
+                            active ? "text-accent bg-accent-soft" : "text-text2 hover:bg-black/4"
+                          }`}
+                        >
+                          {c.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                );
+              }
               const active = pathname === l.href || (l.href !== "/admin" && pathname.startsWith(l.href));
               return (
                 <Link
