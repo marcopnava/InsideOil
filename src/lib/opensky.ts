@@ -21,6 +21,21 @@ export interface Aircraft {
 
 let cachedAircraft: Aircraft[] = [];
 let lastFetch = 0;
+let lastError: string | null = null;
+let lastFetchHadAuth = false;
+let lastSource: "live" | "cache" | "db" | "empty" = "empty";
+
+export function getOpenSkyDiagnostics() {
+  return {
+    cachedCount: cachedAircraft.length,
+    lastFetchAgoSec: lastFetch ? Math.round((Date.now() - lastFetch) / 1000) : null,
+    lastError,
+    lastFetchHadAuth,
+    lastSource,
+    envHasClientId: !!process.env.OPENSKY_CLIENT_ID,
+    envHasClientSecret: !!process.env.OPENSKY_CLIENT_SECRET,
+  };
+}
 // Default cache TTL = 5 min. Aligned with the Vercel cron schedule (every 5 min)
 // to keep credit usage at ~288 calls/day × 4 credits = ~1150/day, well under 4000.
 const CACHE_TTL = 5 * 60_000;
@@ -75,6 +90,7 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
   try {
     const headers: Record<string, string> = { Accept: "application/json" };
     const token = await getAccessToken();
+    lastFetchHadAuth = !!token;
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
     const res = await fetch(OPENSKY_URL, {
@@ -82,7 +98,7 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
       cache: "no-store",
       signal: AbortSignal.timeout(20_000),
     });
-    if (!res.ok) throw new Error(`OpenSky ${res.status}`);
+    if (!res.ok) throw new Error(`OpenSky HTTP ${res.status} ${res.statusText}`);
     const data = await res.json();
 
     const aircraft: Aircraft[] = [];
@@ -108,6 +124,8 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
 
     cachedAircraft = aircraft;
     lastFetch = now;
+    lastError = null;
+    lastSource = "live";
 
     const duration = Date.now() - start;
     db.fetchLog
@@ -137,12 +155,17 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
 
     return aircraft;
   } catch (e) {
-    console.error("[OpenSky] Fetch failed:", e);
+    const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+    console.error("[OpenSky] Fetch failed:", msg);
+    lastError = msg;
     db.fetchLog
-      .create({ data: { source: "opensky", error: String(e), durationMs: Date.now() - start } })
+      .create({ data: { source: "opensky", error: msg, durationMs: Date.now() - start } })
       .catch(() => {});
 
-    if (cachedAircraft.length > 0) return cachedAircraft;
+    if (cachedAircraft.length > 0) {
+      lastSource = "cache";
+      return cachedAircraft;
+    }
 
     try {
       const since = new Date(Date.now() - 30 * 60_000);
@@ -168,8 +191,11 @@ export async function fetchAircraft(opts?: { force?: boolean }): Promise<Aircraf
           isCargo: true,
         });
       }
-      return Array.from(seen.values());
+      const out = Array.from(seen.values());
+      lastSource = out.length > 0 ? "db" : "empty";
+      return out;
     } catch {
+      lastSource = "empty";
       return [];
     }
   }

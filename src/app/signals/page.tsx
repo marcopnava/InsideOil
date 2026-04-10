@@ -3,6 +3,72 @@
 import { useApi } from "@/hooks/use-api";
 import { Card } from "@/components/card";
 import { AppShell } from "@/components/app-shell";
+import { InfoTooltip } from "@/components/info-tooltip";
+import { PageHelp } from "@/components/page-help";
+
+const SIGNALS_HELP = {
+  title: "Institutional Signals — what am I looking at?",
+  intro:
+    "This page combines live global AIS (vessel positions), forward-curve futures from Yahoo Finance, and a synthetic tanker freight proxy to compute four signals that institutional desks pay 40-120k€/year for. The signals are recomputed every ~5 minutes from the latest data.",
+  sections: [
+    {
+      title: "Contango Arbitrage (Brent / WTI)",
+      body: [
+        "When the forward curve is in 'contango' (futures > spot), you can theoretically buy crude now, store it on a chartered VLCC, and sell forward via futures. Profitable when the contango is BIGGER than freight + financing + insurance.",
+        "The table shows P/L per barrel for every forward tenor (1M-12M). Green = profitable, gray = not.",
+        "BULLISH STORAGE = there's a real arb. NO ARB = curve doesn't justify the trade today.",
+        "When freight (BDTI) is high or curve is in backwardation, you'll always see NO ARB — that's correct, not a bug.",
+      ],
+    },
+    {
+      title: "BDTI / VLCC TCE",
+      body: [
+        "BDTI = Baltic Dirty Tanker Index, the daily benchmark for crude tanker freight rates. Sky-high BDTI means tanker capacity is scarce, freight is expensive.",
+        "VLCC TCE (Time Charter Equivalent) = $ per day a Very Large Crude Carrier earns. Around $30-60k/day is normal; >$100k/day is extreme.",
+        "Source note: the official BDTI is paywalled. We use BWET ETF as a proxy and apply a calibration formula. It's directional but not the actual published value.",
+      ],
+    },
+    {
+      title: "Brent / WTI Forward Curve Structure",
+      body: [
+        "CONTANGO = forward prices higher than spot. Usually means oversupply, market wants to incentivize storage.",
+        "BACKWARDATION = forward prices lower than spot. Usually means physical market is tight, buyers willing to pay premium for prompt delivery.",
+        "FLAT = no clear structure.",
+        "Backwardation is generally bullish for crude price, contango bearish.",
+      ],
+    },
+    {
+      title: "Oil Chokepoint Flow",
+      body: [
+        "The 6 most strategic maritime chokepoints handle ~60% of global seaborne oil. We count tankers transiting each one.",
+        "Δ% = current 24h transit count vs the 7-day moving average.",
+        "DEPRESSED status (≤ −20%) = leading indicator of supply disruption (blockade, weather, geopolitics). Usually precedes a price spike by 24-72h.",
+        "ELEVATED (≥ +20%) = surge in flows, watch for inventory build downstream.",
+        "NO-DATA = the AIS history hasn't accumulated enough samples yet (needs ~24-48h after first deploy).",
+        "COVERAGE NOTE: Persian Gulf (Hormuz) has weak terrestrial AIS coverage in the free feed. Numbers there underestimate reality. Satellite AIS would fix it but costs money.",
+      ],
+    },
+    {
+      title: "Floating Storage Detector",
+      body: [
+        "Identifies VLCC tankers idle at sea for >5 days, far from any oil terminal — the floating storage signature.",
+        "Rising count + contango = confirmation that the storage trade is active.",
+        "Rising count without contango = possible distress sale or sanctions evasion (dark fleet).",
+        "Empty list at first launch is normal: needs 5+ days of position history to detect reliably.",
+      ],
+    },
+    {
+      title: "OPEC+ Compliance Scoring",
+      body: [
+        "For each OPEC+ country, we count tankers leaving the country's main loading terminals via AIS port-call detection over the last 30 days, estimate barrels loaded, and compare with the published quota.",
+        "Δ > +5% of quota = country is overproducing (bearish for crude).",
+        "Δ < −5% = underproducing (bullish, supply tight).",
+        "First 24-48h after launch will show 0 because the position history needs time to accumulate. Real values appear gradually.",
+        "Accuracy ~75% vs Kpler's ~95% — directional signal, not gospel.",
+      ],
+    },
+  ],
+};
 
 interface ArbTenor {
   tenor: number;
@@ -117,6 +183,7 @@ export default function SignalsPage() {
 
   return (
     <AppShell>
+      <PageHelp {...SIGNALS_HELP} />
       <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
         <div className="mb-6">
           <h1 className="text-[30px] font-bold tracking-[-0.035em]">Institutional Signals</h1>
@@ -161,23 +228,27 @@ export default function SignalsPage() {
                 label="BDTI"
                 value={data.bdti ? fmt(data.bdti.value) : "…"}
                 sub={data.bdti ? data.bdti.source : "no data"}
+                info="Baltic Dirty Tanker Index — daily benchmark for crude tanker freight rates. Higher = tanker capacity scarce, freight expensive. Official BDTI is paywalled, so we proxy via the BWET ETF with a calibration formula."
               />
               <StatBox
                 label="VLCC TCE est."
                 value={data.bdti ? "$" + fmt(Math.round(data.bdti.value * 18 - 8000)) : "…"}
                 sub="$/day heuristic"
+                info="Time Charter Equivalent — how much a Very Large Crude Carrier earns per day at current rates. Normal: $30-60k/day. Extreme: >$100k/day. Computed from BDTI via heuristic formula."
               />
               <StatBox
                 label="Brent Structure"
                 value={data.structure.brent ? data.structure.brent.shape.toUpperCase() : "…"}
                 sub={data.structure.brent ? `6M Δ ${usd(data.structure.brent.spread6m)}` : "no curve"}
                 highlight={data.structure.brent?.shape === "contango"}
+                info="CONTANGO = futures > spot (oversupply, bearish). BACKWARDATION = futures < spot (tight market, bullish). FLAT = neither. The 6M Δ is the spread between front-month and 6-month forward, in $/bbl."
               />
               <StatBox
                 label="OPEC+ Compliance"
                 value={"groupCompliancePct" in data.opec ? `${data.opec.groupCompliancePct}%` : "…"}
                 sub={"groupCompliancePct" in data.opec ? `${fmt(data.opec.totalEstimatedKbd)} kb/d` : "computing"}
                 highlight={"groupCompliancePct" in data.opec && data.opec.groupCompliancePct > 105}
+                info="Estimated production vs official OPEC+ quota, computed from AIS port-call detection at the main loading terminals over the last 30 days. >105% = group overproducing (bearish). Needs 24-48h of data history to be meaningful."
               />
             </div>
 
@@ -251,15 +322,20 @@ function StatBox({
   value,
   sub,
   highlight,
+  info,
 }: {
   label: string;
   value: string;
   sub: string;
   highlight?: boolean;
+  info?: string;
 }) {
   return (
     <div className="bg-bg3 border border-border rounded-[var(--radius)] p-[14px_16px]">
-      <div className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em] mb-1">{label}</div>
+      <div className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em] mb-1 flex items-center">
+        {label}
+        {info && <InfoTooltip text={info} />}
+      </div>
       <div className={`text-[20px] font-bold tracking-[-0.03em] leading-none ${highlight ? "text-accent" : ""}`}>
         {value}
       </div>
