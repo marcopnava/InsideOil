@@ -6,6 +6,39 @@ import { KPICard } from "@/components/kpi-card";
 import { Card } from "@/components/card";
 import { DetailPanel, DetailRow } from "@/components/detail-panel";
 import { AppShell } from "@/components/app-shell";
+import { PageHelp } from "@/components/page-help";
+
+const PORTS_HELP = {
+  title: "Port Status — what am I looking at?",
+  intro:
+    "Live vessel count at major maritime ports, computed from AIS positions inside each port's circular boundary.",
+  sections: [
+    {
+      title: "Vessel counts",
+      body: [
+        "Total = all vessels currently inside the port's geographic radius (typically 10-25 nautical miles).",
+        "Tankers / Cargo / Passenger / Other = breakdown by AIS shipType.",
+        "Moving / Anchored = activity status.",
+      ],
+    },
+    {
+      title: "Congestion level",
+      body: [
+        "HIGH = >50 vessels in port — congestion likely, loading/discharge delayed.",
+        "MEDIUM = 20-50 vessels — normal busy operations.",
+        "LOW = <20 vessels — quiet.",
+        "High congestion at oil terminals usually tightens local supply 1-2 weeks downstream.",
+      ],
+    },
+    {
+      title: "How to use",
+      body: [
+        "Click any port row to see detailed vessel list and recent activity.",
+        "Watch for sudden congestion spikes at major hubs (Houston, Singapore, Rotterdam, Fujairah) as leading indicators of supply chain disruption.",
+      ],
+    },
+  ],
+};
 
 interface PortStat {
   name: string;
@@ -46,6 +79,7 @@ export default function PortsPage() {
 
   return (
     <AppShell>
+    <PageHelp {...PORTS_HELP} />
     <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
       <div className="mb-7">
         <h1 className="text-[30px] font-bold tracking-[-0.035em]">Port Status</h1>

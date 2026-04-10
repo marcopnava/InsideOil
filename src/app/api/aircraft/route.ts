@@ -1,56 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAircraft } from "@/lib/opensky";
+import { getLatestCargoAircraft, getAircraftStaleness } from "@/lib/aircraft-store";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const aircraft = await fetchAircraft();
-    const cargo = aircraft.filter((a) => a.isCargo);
+    // Read from DB (worker writes here every 5 min). Vercel can't reach
+    // opensky-network.org directly, so we never call fetchAircraft live here.
+    let cargo = await getLatestCargoAircraft();
 
+    // If DB is empty (worker not running), try a live fetch as last resort.
+    let total = cargo.length;
+    if (cargo.length === 0) {
+      try {
+        const live = await fetchAircraft();
+        cargo = live.filter((a) => a.isCargo);
+        total = live.length;
+      } catch {
+        // ignore — return empty stats below
+      }
+    }
+
+    const staleness = await getAircraftStaleness();
     const mode = req.nextUrl.searchParams.get("mode");
 
-    // mode=map → only send positions (compact format for map rendering)
     if (mode === "map") {
-      // Send ALL cargo, but only a sample of others for performance
-      const otherSample = aircraft
-        .filter((a) => !a.isCargo)
-        .filter((_, i) => i % 8 === 0); // ~1/8 of all aircraft
-
       return NextResponse.json({
         success: true,
         data: {
-          cargo: cargo.map((a) => [a.lat, a.lng, a.heading ?? 0, a.callsign ?? "", a.icao24, a.country, a.altitude ?? 0, a.speed ?? 0]),
-          other: otherSample.map((a) => [a.lat, a.lng, a.heading ?? 0]),
-          counts: { total: aircraft.length, cargo: cargo.length },
+          cargo: cargo.map((a) => [
+            a.lat, a.lng, a.heading ?? 0, a.callsign ?? "", a.icao24,
+            a.country, a.altitude ?? 0, a.speed ?? 0,
+          ]),
+          other: [],
+          counts: { total, cargo: cargo.length },
+          staleness,
         },
       });
     }
 
-    // Default: stats + full cargo list
     const limitParam = req.nextUrl.searchParams.get("limit");
     const limit = limitParam ? Math.min(Math.max(1, parseInt(limitParam, 10)), 1000) : cargo.length;
+
     return NextResponse.json({
       success: true,
       data: {
         cargo: cargo.slice(0, limit),
         stats: {
-          total: aircraft.length,
+          total,
           cargo: cargo.length,
           avgAltitude:
             cargo.length > 0
-              ? Math.round(
-                  cargo.reduce((s, a) => s + (a.altitude ?? 0), 0) / cargo.length
-                )
+              ? Math.round(cargo.reduce((s, a) => s + (a.altitude ?? 0), 0) / cargo.length)
               : null,
           avgSpeed:
             cargo.length > 0
-              ? Math.round(
-                  cargo.reduce((s, a) => s + (a.speed ?? 0), 0) / cargo.length
-                )
+              ? Math.round(cargo.reduce((s, a) => s + (a.speed ?? 0), 0) / cargo.length)
               : null,
           byCountry: Object.entries(
-            aircraft.reduce(
+            cargo.reduce(
               (acc, a) => {
                 acc[a.country] = (acc[a.country] || 0) + 1;
                 return acc;
@@ -62,11 +71,12 @@ export async function GET(req: NextRequest) {
             .slice(0, 10)
             .map(([country, count]) => ({ country, count })),
         },
+        staleness,
       },
     });
   } catch (e) {
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: e instanceof Error ? e.message : "unknown" },
       { status: 500 }
     );
   }

@@ -13,6 +13,7 @@
 import "dotenv/config";
 import http from "node:http";
 import { startAisStreamWorker } from "../src/lib/aisstream";
+import { fetchAircraft } from "../src/lib/opensky";
 
 // ─── Tiny health server ───────────────────────────────────────
 // Required to deploy this worker as a Render "Web Service" (free tier).
@@ -61,8 +62,27 @@ const worker = startAisStreamWorker({
   },
 });
 
+// ─── OpenSky cargo aircraft polling ─────────────────────────
+// Vercel cannot reach opensky-network.org (TCP timeout from their egress IPs).
+// We poll from this Mac process instead — same architecture as AIS — and
+// write the cargo snapshots to Postgres. The Vercel /api/aircraft route
+// reads from there.
+const OPENSKY_POLL_MS = 5 * 60_000;
+async function pollOpenSky() {
+  try {
+    const aircraft = await fetchAircraft({ force: true });
+    const cargo = aircraft.filter((a) => a.isCargo).length;
+    console.log(`[opensky] poll: ${aircraft.length} states, ${cargo} cargo`);
+  } catch (e) {
+    console.error("[opensky] poll failed:", e);
+  }
+}
+pollOpenSky();
+const openSkyTimer = setInterval(pollOpenSky, OPENSKY_POLL_MS);
+
 const shutdown = async () => {
   console.log("\n[ais-worker] shutting down…");
+  clearInterval(openSkyTimer);
   await worker.stop();
   process.exit(0);
 };

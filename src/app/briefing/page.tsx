@@ -4,6 +4,35 @@ import { useApi } from "@/hooks/use-api";
 import { Card } from "@/components/card";
 import { Sparkline } from "@/components/sparkline";
 import { AppShell } from "@/components/app-shell";
+import { PageHelp } from "@/components/page-help";
+
+const BRIEFING_HELP = {
+  title: "Daily Briefing — what am I looking at?",
+  intro:
+    "An auto-generated morning report combining today's prices, decision engine, arbitrage opportunities, port congestion and oil-related news. Refreshed every 5-10 minutes.",
+  sections: [
+    {
+      title: "Executive Summary",
+      body: "The headline: where the Decision Engine stands today (BUY/SELL/HOLD), with confidence and the 3 most important reasons.",
+    },
+    {
+      title: "Best Arbitrage Route",
+      body: "The single most profitable trans-region trade right now (USGC→NWE, Russia→India, etc.) with net margin per barrel after freight.",
+    },
+    {
+      title: "Congested Ports",
+      body: "Ports flagged as high congestion — usually meaning >50 vessels in port circle. Congestion delays loading, tightens local supply, can be bullish for the regional benchmark.",
+    },
+    {
+      title: "Today's News",
+      body: "Filtered oil/crude/OPEC headlines from Google News. Click any headline to read the full article.",
+    },
+    {
+      title: "Charts",
+      body: "WTI 3-month price + Crack Spread 3-month from Yahoo daily candles.",
+    },
+  ],
+};
 
 interface DecisionData {
   decision: string; action: string; confidence: string;
@@ -40,6 +69,7 @@ export default function BriefingPage() {
 
   return (
     <AppShell>
+    <PageHelp {...BRIEFING_HELP} />
     <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
       <div className="mb-8">
         <div className="text-[11px] font-semibold text-text3 uppercase tracking-[0.07em]">Daily Briefing</div>

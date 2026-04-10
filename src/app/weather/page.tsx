@@ -6,6 +6,37 @@ import { KPICard } from "@/components/kpi-card";
 import { Card } from "@/components/card";
 import { DetailPanel, DetailRow } from "@/components/detail-panel";
 import { AppShell } from "@/components/app-shell";
+import { PageHelp } from "@/components/page-help";
+
+const WEATHER_HELP = {
+  title: "Maritime Weather — what am I looking at?",
+  intro:
+    "Real-time wind, wave height, and temperature at strategic maritime waypoints worldwide. Source: Open-Meteo (free public API).",
+  sections: [
+    {
+      title: "Why it matters for crude trading",
+      body: [
+        "Storms in major shipping lanes delay tankers — slows physical delivery, can spike spot prices.",
+        "Hurricane in Gulf of Mexico → US Gulf refineries shut → crack spread spikes, crude bid up.",
+        "North Sea storms → Brent loadings delayed, tightens prompt physical.",
+        "Indian Ocean cyclones → Middle East to Asia routes affected.",
+      ],
+    },
+    {
+      title: "Key thresholds",
+      body: [
+        "Wave height >4m = significant for tanker operations (slow steaming).",
+        "Wave height >6m = very rough, possible loading delays at terminals.",
+        "Wind >40 knots = gale, possible port closures.",
+        "Wind >55 knots = storm, certain delays.",
+      ],
+    },
+    {
+      title: "Monitored waypoints",
+      body: "Hormuz, Suez, Malacca, North Sea, Gulf of Mexico, Cape of Good Hope — the chokepoints and major loading zones.",
+    },
+  ],
+};
 
 interface WeatherPoint {
   lat: number;
@@ -140,6 +171,7 @@ export default function WeatherPage() {
 
   return (
     <AppShell>
+    <PageHelp {...WEATHER_HELP} />
     <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
       <div className="mb-7">
         <h1 className="text-[30px] font-bold tracking-[-0.035em]">Maritime Weather</h1>

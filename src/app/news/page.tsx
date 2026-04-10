@@ -3,6 +3,30 @@
 import { useApi } from "@/hooks/use-api";
 import { Card } from "@/components/card";
 import { AppShell } from "@/components/app-shell";
+import { PageHelp } from "@/components/page-help";
+
+const NEWS_HELP = {
+  title: "Industry News — what am I looking at?",
+  intro:
+    "Real-time news feed for shipping, freight, oil markets and supply chain. Source: Google News RSS, refreshed every 10 minutes. Filtered to oil/crude/tanker/OPEC/maritime keywords.",
+  sections: [
+    {
+      title: "How to use",
+      body: [
+        "Headlines are grouped by category (Shipping, Trade, Supply Chain, Air Cargo).",
+        "Click any headline to open the full article in a new tab (external sources).",
+        "Use as a sentiment scan and as a leading indicator: a sudden cluster of stories on Houthis / Suez / OPEC always precedes a price move by hours-days.",
+      ],
+    },
+    {
+      title: "Why it matters",
+      body: [
+        "News is one of the inputs of the Decision Engine — sentiment shifts feed into the BUY/SELL recommendation.",
+        "Early news on supply disruption (sanctions, refinery fire, hurricane) gives you 6-24h edge over slower analysts.",
+      ],
+    },
+  ],
+};
 
 interface NewsItem {
   title: string;
@@ -43,6 +67,7 @@ export default function NewsPage() {
 
   return (
     <AppShell>
+    <PageHelp {...NEWS_HELP} />
     <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
       <div className="mb-7">
         <h1 className="text-[30px] font-bold tracking-[-0.035em]">Industry News</h1>

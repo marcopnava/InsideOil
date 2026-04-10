@@ -8,6 +8,72 @@ import { Card } from "@/components/card";
 import { DetailPanel, DetailRow } from "@/components/detail-panel";
 import { TradeTabs } from "@/components/trade-tabs";
 import { AppShell } from "@/components/app-shell";
+import { PageHelp } from "@/components/page-help";
+
+const TRADE_HELP = {
+  title: "Trade Intelligence — what am I looking at?",
+  intro:
+    "This page combines live commodity prices, tanker fleet analytics, chokepoint flow, and route intelligence to give you the building blocks for crude oil trading decisions. Everything is computed from real-time data — no estimates, no delayed feeds.",
+  sections: [
+    {
+      title: "Commodity Prices row",
+      body: [
+        "Live (15-min delayed) WTI, Brent, RBOB Gasoline, Heating Oil, Natural Gas + Brent-WTI spread.",
+        "Source: Yahoo Finance free API.",
+        "Click any price to see full chart and history in the dedicated commodities section.",
+      ],
+    },
+    {
+      title: "Tanker Fleet Overview",
+      body: [
+        "Total tankers in the global AIS feed (shipType 80-89).",
+        "Moving = underway with speed > 0.5 knots.",
+        "Anchored / Floating Storage estimate = stationary tankers.",
+        "Slow Steaming = moving but at <8 knots, often a sign of carriers absorbing excess capacity.",
+        "Avg Speed: low (<10kn) suggests oversupply, high (>12kn) suggests urgency.",
+      ],
+    },
+    {
+      title: "Trading Signals",
+      body: [
+        "Each signal is derived from real fleet behavior. BULL / BEAR / NEUTRAL classification.",
+        "Floating Storage Ratio: % anchored. >40% = bearish.",
+        "Slow Steaming Ratio: % of moving fleet doing <8kn. >30% = bearish.",
+        "Fleet Utilization: moving / total. >70% = bullish.",
+      ],
+    },
+    {
+      title: "Chokepoints",
+      body: [
+        "The 6 strategic maritime chokepoints handling ~60% of global oil: Hormuz, Malacca, Suez, Bab-el-Mandeb, Bosphorus, Danish Straits.",
+        "Tankers in zone = current count.",
+        "Congestion: high / medium / low based on vessel density.",
+        "COVERAGE NOTE: free AIS has gaps in Persian Gulf and Red Sea. Hormuz / Bab-el-Mandeb counts underestimate reality.",
+      ],
+    },
+    {
+      title: "Top Tanker Destinations",
+      body: [
+        "Where the global tanker fleet is heading right now, by port name from AIS destination field.",
+        "A surge in destinations of a specific country signals demand build-up there 1-3 weeks ahead of physical delivery.",
+      ],
+    },
+    {
+      title: "Speed Distribution",
+      body: [
+        "Histogram of fleet speeds: stationary, slow steaming, normal, fast.",
+        "Shifts in this distribution are leading indicators of supply/demand changes.",
+      ],
+    },
+    {
+      title: "Route Analysis",
+      body: [
+        "Major crude oil shipping routes with current tanker counts.",
+        "Tracks flow on the most economically significant lanes (Middle East→Asia, Russia→India, US Gulf→Europe).",
+      ],
+    },
+  ],
+};
 
 interface TankerData {
   overview: { total: number; moving: number; anchored: number; slowSteaming: number; normalSpeed: number; avgSpeed: number; potentialFloatingStorage: number };
@@ -79,6 +145,7 @@ export default function TradePage() {
 
   return (
     <AppShell>
+    <PageHelp {...TRADE_HELP} />
     <div className="animate-fade-in max-w-[1400px] mx-auto p-4 sm:p-6 md:p-7 md:px-8 pb-14">
       <div className="mb-7">
         <h1 className="text-[30px] font-bold tracking-[-0.035em]">Trade Intelligence</h1>
