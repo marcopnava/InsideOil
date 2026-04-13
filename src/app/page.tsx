@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 
 // Animated counter
@@ -480,6 +480,264 @@ function CompetitorSection() {
   );
 }
 
+/* ─────────────── Live data strip ─────────────── */
+function LiveDataStrip() {
+  const [d, setD] = useState<{
+    prices: { brent: number | null; wti: number | null; spread: number | null };
+    curve: string;
+    bdti: number | null;
+    fleet: { vessels: number; tankers: number; cargoFlights: number };
+    nextEvent: { title: string; at: string; impact: string } | null;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/landing-data")
+      .then((r) => r.json())
+      .then((j) => j.success && j.data && setD(j.data))
+      .catch(() => {});
+  }, []);
+
+  if (!d) return null;
+
+  const items = [
+    d.prices.brent != null && { label: "Brent", value: `$${d.prices.brent.toFixed(2)}` },
+    d.prices.wti != null && { label: "WTI", value: `$${d.prices.wti.toFixed(2)}` },
+    d.prices.spread != null && { label: "Spread", value: `$${d.prices.spread.toFixed(2)}` },
+    d.curve && d.curve !== "flat" && { label: "Curve", value: d.curve.toUpperCase() },
+    d.fleet.vessels > 0 && { label: "Vessels", value: d.fleet.vessels.toLocaleString() },
+    d.fleet.tankers > 0 && { label: "Tankers", value: d.fleet.tankers.toLocaleString() },
+    d.fleet.cargoFlights > 0 && { label: "Cargo flights", value: d.fleet.cargoFlights.toLocaleString() },
+    d.nextEvent && {
+      label: "Next event",
+      value: d.nextEvent.title.split("—")[0].trim().slice(0, 28),
+    },
+  ].filter(Boolean) as Array<{ label: string; value: string }>;
+
+  return (
+    <section className="border-y border-border bg-white py-5 px-4 sm:px-6 md:px-8">
+      <div className="max-w-[1200px] mx-auto">
+        <FadeIn>
+          <div className="flex items-center gap-3 mb-4">
+            <span
+              className="w-[6px] h-[6px] rounded-full bg-accent shrink-0"
+              style={{ animation: "pulse 2s infinite" }}
+            />
+            <span className="text-[10px] font-bold text-text3 uppercase tracking-[0.1em]">
+              Live on InsideOil right now
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-x-6 gap-y-4">
+            {items.map((item) => (
+              <div key={item.label}>
+                <div className="text-[9px] font-semibold text-text3 uppercase tracking-[0.06em]">
+                  {item.label}
+                </div>
+                <div
+                  className="text-[18px] sm:text-[20px] font-bold tracking-[-0.03em] leading-none mt-1"
+                  style={{ fontFamily: "var(--font-jetbrains)" }}
+                >
+                  {item.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────── Before / After ─────────────── */
+function BeforeAfterSection() {
+  const before = [
+    { point: "You read the Reuters headline 3 hours after the event. Price already moved." },
+    { point: "You don't know if the market is in contango or backwardation. You enter blind." },
+    { point: "Wednesday 16:30 — the EIA report drops. You don't know what the 4 key numbers are. You panic." },
+    { point: "No stop loss. No position sizing. A 3% overnight move wipes your week." },
+    { point: "You follow Twitter accounts that sell signals. They were wrong 6 of the last 8 times." },
+  ];
+  const after = [
+    { point: "You see Hormuz tanker transit drop 20% in real-time. You enter 4 hours before the headline." },
+    { point: "The forward curve tells you the market is tight. You know why you're going long." },
+    { point: "The EIA playbook is open. 4 numbers, in order, with the decision tree. You react in 30 seconds." },
+    { point: "The Risk Calculator told you exactly how much you'd lose before you clicked buy." },
+    { point: "Your trade journal shows a 58% win rate over 40 trades. You trust your system, not someone else's." },
+  ];
+
+  return (
+    <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-white overflow-hidden">
+      <div className="max-w-[1100px] mx-auto">
+        <FadeIn>
+          <div className="text-center mb-10 sm:mb-14">
+            <h2 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.035em] leading-[1.1] max-w-[780px] mx-auto">
+              The difference between guessing and knowing
+            </h2>
+          </div>
+        </FadeIn>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-0 rounded-[14px] overflow-hidden border border-border">
+          {/* Before */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="bg-[#f5f5f5] p-6 sm:p-8 lg:border-r border-b lg:border-b-0 border-border"
+          >
+            <div className="text-[10px] font-bold text-text3 uppercase tracking-[0.1em] mb-5">
+              Trading without InsideOil
+            </div>
+            <div className="flex flex-col gap-4">
+              {before.map((b, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.15 + i * 0.08 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-5 h-5 rounded-full bg-black/8 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-1.5 h-[1.5px] bg-text3 rounded-full" />
+                  </div>
+                  <p className="text-[13px] text-text3 leading-[1.55]">{b.point}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* After */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="bg-white p-6 sm:p-8"
+          >
+            <div className="text-[10px] font-bold text-accent uppercase tracking-[0.1em] mb-5">
+              Trading with InsideOil
+            </div>
+            <div className="flex flex-col gap-4">
+              {after.map((a, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: 10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.25 + i * 0.08 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-2 h-[1.5px] bg-accent rounded-full" />
+                  </div>
+                  <p className="text-[13px] text-text leading-[1.55]">{a.point}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────── FAQ ─────────────── */
+function FAQSection() {
+  const [open, setOpen] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      q: "Is this for beginners or experienced traders?",
+      a: "Both. If you're new, the Education hub and every tooltip on every number will walk you through what you're looking at. If you're experienced, the Institutional Signals, forward curve, and OPEC compliance data give you the edge you're paying Bloomberg or Kpler for elsewhere — at a fraction of the cost.",
+    },
+    {
+      q: "Do I need a Bloomberg terminal to use InsideOil?",
+      a: "No. InsideOil replaces the crude-oil-specific parts of a Bloomberg terminal: live prices, forward curves, crack spreads, fleet analytics, inventory data, and speculative positioning. For everything else (equities, fixed income, FX), Bloomberg is still Bloomberg. But for oil trading decisions, you don't need it anymore.",
+    },
+    {
+      q: "Where does the data come from?",
+      a: "Seven free public sources: AISStream (global vessel positions), OpenSky Network (cargo aircraft), Yahoo Finance (futures prices), EIA (US petroleum inventories), CFTC (speculative positioning), Open-Meteo (maritime weather), and Google News RSS. We document every source and its limitations openly in the Education section.",
+    },
+    {
+      q: "How often is the data updated?",
+      a: "Vessel positions: every 30 seconds. Futures prices: every 5 minutes (15-min delay from exchange). Institutional signals: recomputed every 5 minutes. EIA inventory: weekly (Wednesday 16:30 CET). CFTC positioning: weekly (Friday). Everything is automated — you see fresh data every time you load a page.",
+    },
+    {
+      q: "Can I cancel anytime?",
+      a: "Yes. No contracts, no minimum commitment, no cancellation fees. Cancel from Settings in one click. If you cancel, you keep access until the end of your current billing period. If you upgrade or downgrade, Stripe prorates automatically — you're only charged the difference.",
+    },
+    {
+      q: "What instruments can I trade with this data?",
+      a: "Any crude oil instrument: Brent and WTI CFDs at any retail broker, CL and BZ futures on Nymex/ICE, micro futures (MCL), oil ETFs (USO, BNO), even options on CL. The data is instrument-agnostic — it tells you about the market, not about a specific product.",
+    },
+    {
+      q: "Is the AIS coverage truly global?",
+      a: "Our free AIS feed covers Europe, US and East Asia very well. Persian Gulf, Red Sea and West Africa have partial gaps because free AIS relies on terrestrial receivers (radio stations on the coast). We document this limitation openly and are integrating satellite AIS sources to close the gap. For 95% of crude trading decisions, the current coverage is sufficient.",
+    },
+    {
+      q: "What's the difference between Junior, Trader and Institutional?",
+      a: "Junior gives you the core platform: Command Center, live map, news, weather, ports, daily briefing, portfolio journal, economic calendar, and full education. Trader adds Institutional Signals (contango arbitrage, floating storage, chokepoints, OPEC compliance), forward curves, EIA/CFTC data, vessel tracks, and unlimited alerts. Institutional adds the Russia Tanker Tracker, Dark Fleet Detector, API access, and priority support.",
+    },
+  ];
+
+  return (
+    <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-8 border-t border-border bg-bg">
+      <div className="max-w-[800px] mx-auto">
+        <FadeIn>
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.035em]">
+              Questions
+            </h2>
+          </div>
+        </FadeIn>
+
+        <div className="flex flex-col">
+          {faqs.map((faq, i) => {
+            const isOpen = open === i;
+            return (
+              <FadeIn key={i} delay={i * 0.05}>
+                <div className="border-b border-border">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(isOpen ? null : i)}
+                    className="w-full flex items-start justify-between gap-4 py-5 text-left cursor-pointer bg-transparent border-none"
+                  >
+                    <span className="text-[14px] sm:text-[15px] font-semibold text-text leading-[1.4] flex-1">
+                      {faq.q}
+                    </span>
+                    <motion.span
+                      animate={{ rotate: isOpen ? 45 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-[18px] text-text3 shrink-0 leading-none mt-0.5"
+                    >
+                      +
+                    </motion.span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="text-[13px] text-text2 leading-[1.7] pb-5 pr-8">
+                          {faq.a}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </FadeIn>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PricingSection() {
   const [annual, setAnnual] = useState(false);
 
@@ -724,6 +982,9 @@ export default function LandingPage() {
         </FadeIn>
       </section>
 
+      {/* Live data widget — proves the product is real */}
+      <LiveDataStrip />
+
       {/* Features */}
       <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 md:px-8">
         <div className="max-w-[1100px] mx-auto">
@@ -945,6 +1206,9 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Before / After — the pain of trading blind */}
+      <BeforeAfterSection />
+
       {/* Divider — visual break between video sections */}
       <section className="py-20 px-4 sm:px-6 md:px-8 bg-white">
         <div className="max-w-[800px] mx-auto">
@@ -1010,6 +1274,9 @@ export default function LandingPage() {
 
       {/* Competitor comparison — "the alternative is 10-100x more expensive" */}
       <CompetitorSection />
+
+      {/* FAQ */}
+      <FAQSection />
 
       {/* Final CTA */}
       <section className="relative py-28 px-4 sm:px-6 md:px-8 overflow-hidden">
