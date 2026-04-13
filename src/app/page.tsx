@@ -589,6 +589,7 @@ export default function LandingPage() {
         </div>
         <div className="flex items-center gap-4 sm:gap-6">
           <a href="#features" className="hidden sm:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Features</a>
+          <a href="#academy" className="hidden sm:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Academy</a>
           <a href="#pricing" className="hidden sm:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Pricing</a>
           <a href="#comparison" className="hidden md:inline text-[12px] font-medium text-text3 no-underline hover:text-text transition-colors">Comparison</a>
           <Link href="/login" className="px-4 py-[7px] rounded-[7px] bg-text text-white text-[12px] font-semibold no-underline hover:bg-black/80 transition-colors">
@@ -784,6 +785,241 @@ export default function LandingPage() {
               </FadeIn>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Academy journey — "We teach you everything" */}
+      <section id="academy" className="py-16 sm:py-24 px-4 sm:px-6 md:px-8 bg-bg border-t border-border overflow-hidden">
+        <div className="max-w-[1100px] mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="text-center mb-12 sm:mb-16">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.85 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-border mb-5"
+              >
+                <motion.span
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-1.5 h-1.5 rounded-full bg-accent inline-block"
+                />
+                <span className="text-[10px] sm:text-[11px] font-semibold text-text3 uppercase tracking-[0.08em]">
+                  Free for all plans
+                </span>
+              </motion.div>
+              <h2 className="text-[28px] sm:text-[36px] md:text-[42px] font-bold tracking-[-0.04em] leading-[1.1] max-w-[820px] mx-auto px-2">
+                From zero knowledge to{" "}
+                <span className="relative inline-block">
+                  <motion.span
+                    initial={{ backgroundSize: "0% 100%" }}
+                    whileInView={{ backgroundSize: "100% 100%" }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.7, ease: "easeOut" }}
+                    style={{
+                      backgroundImage: "linear-gradient(transparent 60%, rgba(232,89,12,0.2) 60%)",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "left center",
+                    }}
+                  >
+                    your first trade
+                  </motion.span>
+                </span>
+                {" "}in 14 days.
+              </h2>
+              <p className="text-[14px] sm:text-[16px] text-text2 mt-5 max-w-[640px] mx-auto leading-[1.6] px-2">
+                Most platforms give you data and leave you alone. InsideOil walks you through
+                a structured 6-level journey — from understanding what crude oil is to placing
+                your first trade with real risk management. Included free in every plan.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Journey timeline */}
+          <div className="relative">
+            {/* Vertical connecting line (desktop) */}
+            <div className="hidden lg:block absolute left-1/2 top-8 bottom-8 w-px bg-border -translate-x-1/2" />
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
+              }}
+              className="flex flex-col gap-6 sm:gap-8 lg:gap-0"
+            >
+              {[
+                {
+                  level: "01",
+                  days: "Day 1–2",
+                  title: "Understand the market",
+                  desc: "What is Brent, WTI, Dubai. How crude oil is priced. Who trades it and why. The 3 benchmarks that move the world.",
+                  exercise: "Open the Command Center. Find the Brent price. You just read your first institutional screen.",
+                  icon: "📊",
+                  feature: "Command Center",
+                },
+                {
+                  level: "02",
+                  days: "Day 3–4",
+                  title: "Read the signals",
+                  desc: "Forward curve, contango vs backwardation, crack spread, AIS vessel data. The language professionals speak — decoded for you.",
+                  exercise: "Open Signals. Is Brent in contango or backwardation right now? You just read a forward curve.",
+                  icon: "📈",
+                  feature: "Signals + Trade Intelligence",
+                },
+                {
+                  level: "03",
+                  days: "Day 5–6",
+                  title: "Know when events move price",
+                  desc: "Every Wednesday at 16:30 the EIA report moves crude 1-3%. Every OPEC meeting can move it 5-8%. Learn the calendar, master the timing.",
+                  exercise: "Open the Calendar. Find the next EIA. Set your first personal alert.",
+                  icon: "📅",
+                  feature: "Calendar + Alerts",
+                },
+                {
+                  level: "04",
+                  days: "Day 7–8",
+                  title: "Place your first paper trade",
+                  desc: "Position sizing, stop loss, target price. The 1-2% rule that separates survivors from blowups. Log it in your journal.",
+                  exercise: "Open Portfolio. Use the Risk Calculator. Log a paper trade on Brent with proper sizing.",
+                  icon: "🎯",
+                  feature: "Portfolio + Risk Calculator",
+                },
+                {
+                  level: "05",
+                  days: "Day 9–11",
+                  title: "Institutional-grade analysis",
+                  desc: "Floating storage detection, chokepoint flow, OPEC compliance, contango arbitrage math. The signals hedge funds pay €120k/year for.",
+                  exercise: "Open Signals. Find the Hormuz transit count. Is it above or below the 7-day average?",
+                  icon: "🛢",
+                  feature: "Institutional Signals",
+                },
+                {
+                  level: "06",
+                  days: "Day 12–14",
+                  title: "Build your trading system",
+                  desc: "Review your paper trades. Compute your win rate. Identify which signals led to winners. Write your personal 3-rule system. Graduate.",
+                  exercise: "Review your Portfolio. Write down the 3 rules you'll follow from now on.",
+                  icon: "🏆",
+                  feature: "Portfolio + Education",
+                },
+              ].map((step, i) => (
+                <motion.div
+                  key={step.level}
+                  variants={{
+                    hidden: { opacity: 0, y: 30, scale: 0.97 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+                    },
+                  }}
+                  className={`lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-8 lg:items-start ${
+                    i % 2 === 0 ? "" : "lg:direction-rtl"
+                  }`}
+                >
+                  {/* Content card — alternates left/right on desktop */}
+                  <motion.div
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    className={`bg-white border border-border rounded-[14px] p-5 sm:p-6 transition-shadow hover:shadow-[var(--shadow2)] ${
+                      i % 2 === 0 ? "lg:col-start-1" : "lg:col-start-3"
+                    }`}
+                    style={{ direction: "ltr" }}
+                  >
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="text-[28px] sm:text-[32px] leading-none shrink-0">{step.icon}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <span className="text-[10px] font-bold text-accent bg-accent-soft px-2 py-[2px] rounded-full uppercase tracking-[0.06em]">
+                            Level {step.level}
+                          </span>
+                          <span className="text-[10px] font-semibold text-text3 uppercase tracking-[0.06em]">
+                            {step.days}
+                          </span>
+                        </div>
+                        <h3 className="text-[18px] sm:text-[20px] font-bold tracking-[-0.02em] mt-2 leading-tight text-text">
+                          {step.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <p className="text-[13px] text-text2 leading-[1.6] mb-4">{step.desc}</p>
+                    <div className="bg-bg rounded-[var(--radius-xs)] border border-border p-3.5">
+                      <div className="text-[9px] font-bold text-accent uppercase tracking-[0.08em] mb-1.5">
+                        Practical exercise
+                      </div>
+                      <p className="text-[12px] text-text leading-[1.5] font-medium">{step.exercise}</p>
+                      <div className="text-[10px] text-text3 mt-2">
+                        You&apos;ll use: <span className="font-semibold text-text2">{step.feature}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Timeline node (desktop) */}
+                  <div className="hidden lg:flex lg:col-start-2 flex-col items-center pt-6">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 + i * 0.12, type: "spring", stiffness: 300 }}
+                      className="w-10 h-10 rounded-full bg-text text-white flex items-center justify-center text-[13px] font-bold shadow-sm z-10"
+                    >
+                      {step.level}
+                    </motion.div>
+                    {i < 5 && (
+                      <motion.div
+                        initial={{ scaleY: 0 }}
+                        whileInView={{ scaleY: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5 + i * 0.12, duration: 0.6 }}
+                        className="w-px h-16 bg-border origin-top"
+                      />
+                    )}
+                  </div>
+
+                  {/* Empty grid cell for opposite side */}
+                  <div className={`hidden lg:block ${i % 2 === 0 ? "lg:col-start-3" : "lg:col-start-1"}`} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Bottom CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-center mt-12 sm:mt-16"
+          >
+            <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-white border border-border shadow-sm mb-5">
+              <span className="text-[24px]">🏆</span>
+              <span className="text-[13px] sm:text-[14px] font-semibold text-text">
+                14 days from now, you&apos;ll read oil markets like a professional.
+              </span>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5 px-4">
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href="/login"
+                  className="inline-block px-7 py-3.5 rounded-[7px] bg-text text-white text-[14px] font-semibold no-underline hover:shadow-[0_4px_24px_rgba(0,0,0,.2)] transition-shadow"
+                >
+                  Start your journey — from €19/mo
+                </Link>
+              </motion.div>
+              <span className="text-[12px] text-text3">
+                Academy included free · Cancel anytime
+              </span>
+            </div>
+          </motion.div>
         </div>
       </section>
 
